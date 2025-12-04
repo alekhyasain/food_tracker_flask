@@ -703,17 +703,47 @@ app.get('/api/meals/stats', async (req, res) => {
 // Excel Export API endpoint
 app.post('/api/export-excel', async (req, res) => {
     try {
+        console.log('📥 EXPORT_SERVER: Excel export request received:', {
+            timestamp: new Date().toISOString(),
+            hasBody: !!req.body,
+            bodyKeys: req.body ? Object.keys(req.body) : [],
+            mealsByDateKeys: req.body?.mealsByDate ? Object.keys(req.body.mealsByDate).length : 0,
+            filename: req.body?.filename,
+            startDate: req.body?.startDate,
+            endDate: req.body?.endDate,
+            requestSize: JSON.stringify(req.body || {}).length
+        });
+        
         const { mealsByDate, startDate, endDate, filename } = req.body;
         
+        console.log('📊 EXPORT_SERVER: Validating request data...');
         // Validation
         if (!mealsByDate || typeof mealsByDate !== 'object') {
+            console.error('❌ EXPORT_SERVER: Invalid meals data:', {
+                mealsByDateType: typeof mealsByDate,
+                mealsByDateExists: !!mealsByDate,
+                requestBodyKeys: Object.keys(req.body || {})
+            });
             return res.status(400).json({ error: 'Invalid meal data provided' });
         }
         
-        console.log('📊 Starting Excel export generation...');
-        console.log('📅 Date range:', startDate, 'to', endDate);
-        console.log('📋 Total dates with data:', Object.keys(mealsByDate).length);
+        const dates = Object.keys(mealsByDate).sort();
+        console.log('📅 EXPORT_SERVER: Processing dates:', {
+            totalDates: dates.length,
+            dateRange: dates.length > 0 ? `${dates[0]} to ${dates[dates.length - 1]}` : 'none',
+            sampleDates: dates.slice(0, 5),
+            startDate: startDate,
+            endDate: endDate
+        });
         
+        if (dates.length === 0) {
+            console.error('❌ EXPORT_SERVER: No meal data found');
+            return res.status(400).json({ error: 'No meal data found for export' });
+        }
+        
+        console.log('📊 EXPORT_SERVER: Starting Excel export generation...');
+        
+        console.log('📊 EXPORT_SERVER: Creating Excel workbook...');
         // Create workbook
         const workbook = new ExcelJS.Workbook();
         workbook.creator = 'Food Diary App';
@@ -721,6 +751,7 @@ app.post('/api/export-excel', async (req, res) => {
         workbook.created = new Date();
         workbook.modified = new Date();
         
+        console.log('📊 EXPORT_SERVER: Grouping meals by month...');
         // Group meals by month
         const mealsByMonth = {};
         Object.entries(mealsByDate).forEach(([dateKey, meals]) => {
@@ -739,7 +770,15 @@ app.post('/api/export-excel', async (req, res) => {
             }
         });
         
-        console.log('📊 Months to process:', Object.keys(mealsByMonth).length);
+        console.log('📊 EXPORT_SERVER: Monthly data grouped:', {
+            totalMonths: Object.keys(mealsByMonth).length,
+            months: Object.keys(mealsByMonth),
+            totalMealsPerMonth: Object.entries(mealsByMonth).map(([monthKey, monthData]) => ({
+                month: monthKey,
+                dates: Object.keys(monthData.dates).length,
+                meals: Object.values(monthData.dates).reduce((sum, meals) => sum + meals.length, 0)
+            }))
+        });
         
         // Create sheets for each month
         Object.entries(mealsByMonth).forEach(([monthKey, monthData]) => {
@@ -939,23 +978,35 @@ app.post('/api/export-excel', async (req, res) => {
             worksheet.getCell('A1').font = { bold: true, size: 14 };
         }
         
-        console.log('✅ Excel workbook created successfully');
+        console.log('✅ EXPORT_SERVER: Excel workbook created successfully');
         
         // Generate filename
         const exportFilename = filename || `Food_Diary_Export_${new Date().toISOString().split('T')[0]}.xlsx`;
+        
+        console.log('📊 EXPORT_SERVER: Setting response headers and sending file:', {
+            filename: exportFilename,
+            contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            totalSheets: Object.keys(mealsByMonth).length
+        });
         
         // Set response headers for file download
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', `attachment; filename="${exportFilename}"`);
         
+        console.log('📊 EXPORT_SERVER: Writing workbook to response...');
         // Write workbook to response
         await workbook.xlsx.write(res);
         res.end();
         
-        console.log('📤 Excel file sent successfully:', exportFilename);
+        console.log('✅ EXPORT_SERVER: Excel file sent successfully:', exportFilename);
         
     } catch (error) {
-        console.error('❌ Error generating Excel export:', error);
+        console.error('❌ EXPORT_SERVER: Excel export error:', {
+            errorMessage: error.message,
+            errorStack: error.stack,
+            errorName: error.name,
+            timestamp: new Date().toISOString()
+        });
         res.status(500).json({
             error: 'Failed to generate Excel export',
             details: error.message

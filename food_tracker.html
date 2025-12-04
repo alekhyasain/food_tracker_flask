@@ -1342,7 +1342,7 @@
         let foodDatabase = {};
         let rawIngredients = {};
         let mealsByDate = {}; // New date-based storage structure
-        let selectedDate = new Date(); // Currently selected date
+        let selectedDate = null; // Will be initialized properly in initializeDateSystem
         let customRecipes = JSON.parse(localStorage.getItem('customRecipes') || '{}');
         let currentRecipeIngredients = [];
         let currentMealIngredients = [];
@@ -1403,7 +1403,25 @@
 
         // Date management functions
         function formatDateKey(date) {
-            return date.toISOString().split('T')[0]; // YYYY-MM-DD format
+            // Enhanced date validation and logging
+            if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+                console.warn('⚠️ DATE_KEY: Invalid date provided, using current date as fallback:', date);
+                console.warn('⚠️ DATE_KEY: Stack trace:', new Error().stack);
+                date = new Date();
+            }
+            
+            const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+            console.log('📅 DATE_KEY: Generated date key:', dateKey, 'from date:', date.toISOString());
+            
+            // Validate the generated key format
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+                console.error('❌ DATE_KEY: Invalid date key format generated:', dateKey);
+                const fallbackKey = new Date().toISOString().split('T')[0];
+                console.log('📅 DATE_KEY: Using fallback key:', fallbackKey);
+                return fallbackKey;
+            }
+            
+            return dateKey;
         }
 
         function formatDateDisplay(date) {
@@ -1416,9 +1434,34 @@
             return date.toLocaleDateString('en-US', options);
         }
 
+        function getSafeSelectedDate() {
+            // Safely return selectedDate or fallback to current date
+            if (selectedDate && selectedDate instanceof Date && !isNaN(selectedDate.getTime())) {
+                return selectedDate;
+            }
+            
+            console.warn('⚠️ getSafeSelectedDate: selectedDate is invalid, using current date as fallback');
+            return new Date();
+        }
+
         function initializeDateSystem() {
-            // Set initial date to today
-            selectedDate = new Date();
+            console.log('📅 DATE_INIT: Initializing date system...');
+            console.log('📅 DATE_INIT: Current time:', new Date().toISOString());
+            console.log('📅 DATE_INIT: User timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+            
+            // Ensure selectedDate is properly initialized
+            if (!selectedDate || !(selectedDate instanceof Date) || isNaN(selectedDate.getTime())) {
+                console.log('📅 DATE_INIT: selectedDate was invalid, setting to current date');
+                selectedDate = new Date();
+                console.log('📅 DATE_INIT: New selectedDate set to:', selectedDate.toISOString());
+            } else {
+                console.log('📅 DATE_INIT: selectedDate already valid:', selectedDate.toISOString().split('T')[0]);
+            }
+            
+            // Log the date key that will be generated
+            const todayKey = formatDateKey(selectedDate);
+            console.log('📅 DATE_INIT: Today\'s date key will be:', todayKey);
+            console.log('📅 DATE_INIT: Available meal dates:', Object.keys(mealsByDate));
             
             // Migrate existing data if needed
             migrateExistingData();
@@ -1428,6 +1471,8 @@
             updateDailySummary();
             displayMeals();
             displayTodaysExercises();
+            
+            console.log('✅ DATE_INIT: Date system initialized successfully');
         }
 
         function migrateExistingData() {
@@ -1488,16 +1533,27 @@
             const summaryTitle = document.getElementById('dailySummaryTitle');
             
             // Update date input
-            dateSelector.value = formatDateKey(selectedDate);
+            const safeDate = getSafeSelectedDate();
+            const dateKey = formatDateKey(safeDate);
+            dateSelector.value = dateKey;
+            console.log('📅 UPDATE_DATE_DISPLAY: Set date selector to:', dateKey);
             
             // Update display text
             const displayText = formatDateDisplay(selectedDate);
             dateDisplay.textContent = displayText;
+            console.log('📅 UPDATE_DATE_DISPLAY: Set date display to:', displayText);
             
             // Update summary title
             const today = new Date();
-            const isToday = formatDateKey(selectedDate) === formatDateKey(today);
-            const isYesterday = formatDateKey(selectedDate) === formatDateKey(new Date(today.getTime() - 24 * 60 * 60 * 1000));
+            const todayKey = formatDateKey(today);
+            const selectedKey = dateKey; // Reuse the dateKey we already calculated
+            const isToday = selectedKey === todayKey;
+            const isYesterday = selectedKey === formatDateKey(new Date(today.getTime() - 24 * 60 * 60 * 1000));
+            
+            console.log('📅 UPDATE_DATE_DISPLAY: Today key:', todayKey);
+            console.log('📅 UPDATE_DATE_DISPLAY: Selected key:', selectedKey);
+            console.log('📅 UPDATE_DATE_DISPLAY: Is today?', isToday);
+            console.log('📅 UPDATE_DATE_DISPLAY: Is yesterday?', isYesterday);
             
             let titleText = '📊 Daily Summary';
             if (isToday) {
@@ -1505,17 +1561,17 @@
             } else if (isYesterday) {
                 titleText += ' - Yesterday';
             } else {
-                titleText += ` - ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+                titleText += ` - ${safeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
             }
             
             // Add nursing indicator to summary title if applicable
-            const dateKey = formatDateKey(selectedDate);
-            const weightData = weightByDate[dateKey] || getRecentWeightData();
+            const weightData = weightByDate[dateKey] || getRecentWeightData(); // Reuse dateKey
             if (weightData && weightData.isNursing) {
                 titleText += ' 🤱';
             }
             
             summaryTitle.textContent = titleText;
+            console.log('📅 UPDATE_DATE_DISPLAY: Set summary title to:', titleText);
         }
 
         function navigateDate(days) {
@@ -1553,27 +1609,76 @@
         }
 
         function getCurrentDateMeals() {
-            const dateKey = formatDateKey(selectedDate);
-            return mealsByDate[dateKey] || [];
+            console.log('📅 GET_MEALS: getCurrentDateMeals() called');
+            console.log('📅 GET_MEALS: selectedDate state:', selectedDate ? selectedDate.toISOString().split('T')[0] : 'NULL');
+            
+            const safeDate = getSafeSelectedDate();
+            console.log('📅 GET_MEALS: Safe date retrieved:', safeDate.toISOString().split('T')[0]);
+            
+            const dateKey = formatDateKey(safeDate);
+            console.log('📅 GET_MEALS: Generated date key:', dateKey);
+            
+            // Validate mealsByDate structure
+            if (!mealsByDate || typeof mealsByDate !== 'object') {
+                console.error('❌ GET_MEALS: mealsByDate is invalid:', typeof mealsByDate);
+                console.error('❌ GET_MEALS: Initializing empty mealsByDate object');
+                mealsByDate = {};
+                return [];
+            }
+            
+            const meals = mealsByDate[dateKey] || [];
+            console.log('📅 GET_MEALS: Found', meals.length, 'meals for date key:', dateKey);
+            
+            // Validate meal data structure
+            if (meals.length > 0) {
+                const validMeals = meals.filter(meal => {
+                    const isValid = meal &&
+                                   typeof meal === 'object' &&
+                                   meal.id &&
+                                   meal.description &&
+                                   meal.nutrition &&
+                                   typeof meal.nutrition.calories === 'number';
+                    
+                    if (!isValid) {
+                        console.warn('⚠️ GET_MEALS: Invalid meal data found:', meal);
+                    }
+                    return isValid;
+                });
+                
+                if (validMeals.length !== meals.length) {
+                    console.warn('⚠️ GET_MEALS: Filtered out', meals.length - validMeals.length, 'invalid meals');
+                    // Update the stored data to remove invalid meals
+                    mealsByDate[dateKey] = validMeals;
+                    saveMealsToStorage();
+                }
+                
+                console.log('📅 GET_MEALS: Returning', validMeals.length, 'valid meals');
+                return validMeals;
+            }
+            
+            console.log('📅 GET_MEALS: No meals found for date, returning empty array');
+            return meals;
         }
 
         function addMealToDate(meal) {
-            const dateKey = formatDateKey(selectedDate);
+            const safeDate = getSafeSelectedDate();
+            const dateKey = formatDateKey(safeDate);
             if (!mealsByDate[dateKey]) {
                 mealsByDate[dateKey] = [];
             }
-            
+
             // Add date information to meal
             meal.date = dateKey;
-            meal.timestamp = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(),
-                                    new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()).toISOString();
-            
+            meal.timestamp = new Date(safeDate.getFullYear(), safeDate.getMonth(), safeDate.getDate(),
+                new Date().getHours(), new Date().getMinutes(), new Date().getSeconds()).toISOString();
+
             mealsByDate[dateKey].push(meal);
             saveMealsToStorage();
         }
 
         function removeMealFromDate(mealId) {
-            const dateKey = formatDateKey(selectedDate);
+            const safeDate = getSafeSelectedDate();
+            const dateKey = formatDateKey(safeDate);
             if (mealsByDate[dateKey]) {
                 mealsByDate[dateKey] = mealsByDate[dateKey].filter(meal => meal.id !== mealId);
                 if (mealsByDate[dateKey].length === 0) {
@@ -2441,7 +2546,8 @@
             }
             
             // Add nursing indicator to exercises title if applicable
-            const weightData = weightByDate[dateKey] || getRecentWeightData();
+            const exerciseDateKey = formatDateKey(getSafeSelectedDate());
+            const weightData = weightByDate[exerciseDateKey] || getRecentWeightData();
             if (weightData && weightData.isNursing) {
                 titleText += ' 🤱';
             }
@@ -2851,7 +2957,8 @@
             const weightTrackingTitle = document.getElementById('weightTrackingTitle');
             if (weightTrackingTitle) {
                 let titleText = '⚖️ Weight Tracking & Goals';
-                const weightData = weightByDate[dateKey] || getRecentWeightData();
+                const weightDateKey = formatDateKey(getSafeSelectedDate());
+                const weightData = weightByDate[weightDateKey] || getRecentWeightData();
                 if (weightData && weightData.isNursing) {
                     titleText += ' 🤱';
                 }
@@ -4156,26 +4263,43 @@
         }
 
         function updateDailySummary() {
+            console.log('📅 UPDATE_SUMMARY: updateDailySummary() called');
+            console.log('📅 UPDATE_SUMMARY: selectedDate:', selectedDate.toISOString().split('T')[0]);
+            
             const currentMeals = getCurrentDateMeals();
-            const dateKey = formatDateKey(selectedDate);
+            const safeDate = getSafeSelectedDate();
+            const dateKey = formatDateKey(safeDate);
+
+            console.log('📅 UPDATE_SUMMARY: dateKey generated:', dateKey);
+            console.log('📅 UPDATE_SUMMARY: currentMeals found:', currentMeals.length);
+            console.log('📅 UPDATE_SUMMARY: currentMeals data:', currentMeals);
 
             const totals = currentMeals.reduce((acc, meal) => {
+                console.log('📅 UPDATE_SUMMARY: Processing meal:', meal.description, 'calories:', meal.nutrition.calories);
                 acc.calories += meal.nutrition.calories;
                 acc.protein += meal.nutrition.protein;
                 acc.fiber += meal.nutrition.fiber;
                 return acc;
             }, {calories: 0, protein: 0, fiber: 0});
 
+            console.log('📅 UPDATE_SUMMARY: Calculated totals:', totals);
+            console.log('📅 UPDATE_SUMMARY: Setting totalCalories to:', totals.calories);
+            console.log('📅 UPDATE_SUMMARY: Setting mealCount to:', currentMeals.length);
+
             document.getElementById('totalCalories').textContent = totals.calories;
             document.getElementById('mealCount').textContent = currentMeals.length;
             document.getElementById('totalProtein').textContent = Math.round(totals.protein * 10) / 10 + 'g';
             document.getElementById('totalFiber').textContent = Math.round(totals.fiber * 10) / 10 + 'g';
+            
+            console.log('📅 UPDATE_SUMMARY: UI elements updated successfully');
             
             // Update calorie goal display with dynamic adjustment
             updateCalorieGoalDisplay(totals.calories, dateKey);
             
             // Update weight tracking display when date changes
             updateWeightDisplay();
+            
+            console.log('📅 UPDATE_SUMMARY: updateDailySummary() completed');
         }
 
         // Enhanced calorie goal display function
@@ -4344,14 +4468,61 @@
             }, 3000);
         }
 
-        // Initialize app when page loads
+        // CONSOLIDATED INITIALIZATION - Single DOMContentLoaded listener to prevent race conditions
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 DOM: DOMContentLoaded event fired');
-            console.log('🚀 DOM: rawIngredients state:', rawIngredients ? 'EXISTS' : 'NULL');
-            console.log('🚀 DOM: foodDatabase state:', foodDatabase ? 'EXISTS' : 'NULL');
-            // Initialize the new date-based system
+            console.log('🚀 INIT: Starting consolidated app initialization...');
+            console.log('🚀 INIT: Current time:', new Date().toISOString());
+            console.log('🚀 INIT: rawIngredients state:', rawIngredients ? 'EXISTS' : 'NULL');
+            console.log('🚀 INIT: foodDatabase state:', foodDatabase ? 'EXISTS' : 'NULL');
+            
+            // Initialize the date-based system FIRST to prevent race conditions
             initializeDateSystem();
-            console.log('✅ DOM: DOMContentLoaded initialization completed');
+            
+            // Initialize meal preview updates for servings changes
+            const mealServingsInput = document.getElementById('mealServings');
+            const mealServingsToLogInput = document.getElementById('mealServingsToLog');
+            if (mealServingsInput) {
+                mealServingsInput.addEventListener('input', updateMealPreview);
+            }
+            if (mealServingsToLogInput) {
+                mealServingsToLogInput.addEventListener('input', updateMealPreview);
+            }
+            
+            // Initialize export preview updates for custom dates (consolidated from line 5747)
+            const startDateInput = document.getElementById('exportStartDate');
+            const endDateInput = document.getElementById('exportEndDate');
+            if (startDateInput && endDateInput) {
+                startDateInput.addEventListener('change', updateExportPreview);
+                endDateInput.addEventListener('change', updateExportPreview);
+            }
+            
+            // Initialize enhanced tracking for loading saved goals (consolidated from line 8489)
+            if (weightLossGoals.dailyTarget > 0) {
+                dailyCalorieTarget = weightLossGoals.dailyTarget;
+                weeklyDeficitGoal = weightLossGoals.weeklyDeficitGoal || 3500;
+                
+                // Update userCalorieGoal if not set
+                if (userCalorieGoal === 0) {
+                    userCalorieGoal = dailyCalorieTarget;
+                }
+            }
+            
+            // Update displays after initialization is complete
+            setTimeout(() => {
+                updateWeeklyDeficitDisplay();
+            }, 500);
+            
+            // Hide dropdown when clicking outside (for ingredient searches)
+            document.addEventListener('click', function(event) {
+                const dropdown = document.getElementById('mealIngredientDropdown');
+                const searchInput = document.getElementById('mealIngredientSearch');
+                
+                if (dropdown && searchInput && !dropdown.contains(event.target) && event.target !== searchInput) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+            
+            console.log('✅ INIT: Consolidated app initialization completed');
         });
 
         // Ingredient Management Functions
@@ -5296,29 +5467,7 @@
             showSuccessMessage(`Added "${finalMealName}" to your food log!`);
         }
 
-        // Add event listeners for real-time updates
-        document.addEventListener('DOMContentLoaded', function() {
-            // Update meal preview when servings change
-            const mealServingsInput = document.getElementById('mealServings');
-            const mealServingsToLogInput = document.getElementById('mealServingsToLog');
-            
-            if (mealServingsInput) {
-                mealServingsInput.addEventListener('input', updateMealPreview);
-            }
-            if (mealServingsToLogInput) {
-                mealServingsToLogInput.addEventListener('input', updateMealPreview);
-            }
-
-            // Hide dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                const dropdown = document.getElementById('mealIngredientDropdown');
-                const searchInput = document.getElementById('mealIngredientSearch');
-                
-                if (dropdown && searchInput && !dropdown.contains(event.target) && event.target !== searchInput) {
-                    dropdown.classList.add('hidden');
-                }
-            });
-        });
+        // REMOVED: Duplicate DOMContentLoaded listener - functionality moved to consolidated initialization
 
         // Excel Export Functions
         function openExportModal() {
@@ -5509,6 +5658,14 @@
                 
                 progressText.textContent = 'Generating Excel file...';
                 
+                console.log('🌐 EXPORT_DEBUG: Making request to /api/export-excel...');
+                console.log('📊 EXPORT_DEBUG: Request payload preview:', {
+                    mealsByDateKeys: Object.keys(requestData.mealsByDate || {}),
+                    startDate: requestData.startDate,
+                    endDate: requestData.endDate,
+                    filename: requestData.filename
+                });
+                
                 // Make request to server
                 const response = await fetch('/api/export-excel', {
                     method: 'POST',
@@ -5518,15 +5675,38 @@
                     body: JSON.stringify(requestData)
                 });
                 
+                console.log('📡 EXPORT_DEBUG: Server response received:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    contentType: response.headers.get('content-type'),
+                    contentLength: response.headers.get('content-length')
+                });
+                
                 if (!response.ok) {
-                    const errorData = await response.json();
+                    console.error('❌ EXPORT_DEBUG: Server error response');
+                    let errorData;
+                    try {
+                        errorData = await response.json();
+                        console.error('📄 EXPORT_DEBUG: Error details:', errorData);
+                    } catch (parseError) {
+                        console.error('📄 EXPORT_DEBUG: Could not parse error response as JSON:', parseError);
+                        const errorText = await response.text();
+                        console.error('📄 EXPORT_DEBUG: Raw error response:', errorText);
+                        throw new Error(`Server error: ${response.status} - ${errorText.substring(0, 200)}`);
+                    }
                     throw new Error(errorData.error || `Server error: ${response.status}`);
                 }
                 
                 progressText.textContent = 'Downloading file...';
                 
+                console.log('📥 EXPORT_DEBUG: Processing file download...');
+                
                 // Handle file download
                 const blob = await response.blob();
+                console.log('📁 EXPORT_DEBUG: Blob created:', {
+                    size: blob.size,
+                    type: blob.type
+                });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -5536,7 +5716,11 @@
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
                 
-                console.log('✅ Excel export completed successfully');
+                console.log('✅ EXPORT_DEBUG: Excel export completed successfully:', {
+                    filename: filename,
+                    fileSize: blob.size,
+                    downloadTriggered: true
+                });
                 showSuccessMessage(`📊 Excel file "${filename}" downloaded successfully!`);
                 
                 // Close modal after successful export
@@ -5545,7 +5729,12 @@
                 }, 1500);
                 
             } catch (error) {
-                console.error('❌ Export failed:', error);
+                console.error('❌ EXPORT_DEBUG: Export failed with detailed error:', {
+                    errorMessage: error.message,
+                    errorStack: error.stack,
+                    errorName: error.name,
+                    timestamp: new Date().toISOString()
+                });
                 showErrorMessage('Export failed: ' + error.message);
                 
                 // Re-enable button and hide progress
@@ -5554,17 +5743,7 @@
             }
         }
 
-        // Add event listeners for export preview updates
-        document.addEventListener('DOMContentLoaded', function() {
-            // Update preview when custom dates change
-            const startDateInput = document.getElementById('exportStartDate');
-            const endDateInput = document.getElementById('exportEndDate');
-            
-            if (startDateInput && endDateInput) {
-                startDateInput.addEventListener('change', updateExportPreview);
-                endDateInput.addEventListener('change', updateExportPreview);
-            }
-        });
+        // Export preview event listeners moved to consolidated initialization
 
         // Unified Modal Functions
         function openUnifiedAddModal() {
@@ -8275,6 +8454,8 @@
             
             // Update exercise adjustment status
             if (exerciseStatusEl) {
+                const safeDate = getSafeSelectedDate();
+                const dateKey = formatDateKey(safeDate);
                 const goalData = getAdjustedCalorieGoal(dateKey);
                 if (exerciseCalorieSettings.eatBackExercise) {
                     if (goalData.exerciseCalories > 0) {
@@ -8294,24 +8475,7 @@
             updateWeeklyDeficitDisplay();
         };
         
-        // Initialize enhanced tracking on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load saved goals
-            if (weightLossGoals.dailyTarget > 0) {
-                dailyCalorieTarget = weightLossGoals.dailyTarget;
-                weeklyDeficitGoal = weightLossGoals.weeklyDeficitGoal || 3500;
-                
-                // Update userCalorieGoal if not set
-                if (userCalorieGoal === 0) {
-                    userCalorieGoal = dailyCalorieTarget;
-                }
-            }
-            
-            // Update displays after a short delay to ensure other initialization is complete
-            setTimeout(() => {
-                updateWeeklyDeficitDisplay();
-            }, 500);
-        });
+        // Enhanced tracking initialization moved to consolidated initialization
         
         // Override the original updateDailySummary to also update weekly tracking
         const originalUpdateDailySummary = updateDailySummary;
