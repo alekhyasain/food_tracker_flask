@@ -725,6 +725,160 @@ app.get('/api/meals/stats', async (req, res) => {
     }
 });
 
+// JSON Export for Daily Logs (Download as JSON file)
+app.post('/api/export-json', async (req, res) => {
+    try {
+        const { mealsByDate, startDate, endDate, filename } = req.body;
+        
+        if (!mealsByDate || typeof mealsByDate !== 'object') {
+            return res.status(400).json({ error: 'Invalid meals data' });
+        }
+        
+        // Filter by date range if provided
+        let filteredMeals = mealsByDate;
+        if (startDate && endDate) {
+            filteredMeals = {};
+            Object.keys(mealsByDate).forEach(dateKey => {
+                if (dateKey >= startDate && dateKey <= endDate) {
+                    filteredMeals[dateKey] = mealsByDate[dateKey];
+                }
+            });
+        }
+        
+        // Create export object with metadata
+        const exportData = {
+            metadata: {
+                exportedAt: new Date().toISOString(),
+                version: '1.0',
+                appName: 'Food Diary',
+                format: 'json',
+                totalDays: Object.keys(filteredMeals).length,
+                totalMeals: Object.values(filteredMeals).reduce((sum, meals) => sum + (Array.isArray(meals) ? meals.length : 0), 0),
+                dateRange: {
+                    from: startDate || Object.keys(filteredMeals).sort()[0] || null,
+                    to: endDate || Object.keys(filteredMeals).sort().pop() || null
+                }
+            },
+            meals: filteredMeals
+        };
+        
+        // Set headers for file download
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename || 'food-diary-export.json'}"`);
+        
+        res.json(exportData);
+        
+        console.log(`✅ JSON export: ${Object.keys(filteredMeals).length} days exported`);
+        
+    } catch (error) {
+        console.error('Error exporting JSON:', error);
+        res.status(500).json({ error: 'Failed to export JSON' });
+    }
+});
+
+// JSON Import for Daily Logs (Upload and merge)
+app.post('/api/import-json', async (req, res) => {
+    try {
+        const { meals: importedMeals, mergeStrategy } = req.body;
+        
+        if (!importedMeals || typeof importedMeals !== 'object') {
+            return res.status(400).json({ error: 'Invalid meals data in import file' });
+        }
+        
+        // Read current meals
+        let currentMeals = {};
+        try {
+            const data = await fs.readFile('meals.json', 'utf8');
+            currentMeals = JSON.parse(data);
+        } catch (error) {
+            if (error.code !== 'ENOENT') {
+                throw error;
+            }
+        }
+        
+        let mergedMeals = currentMeals;
+        let importedCount = 0;
+        let skippedCount = 0;
+        const strategy = mergeStrategy || 'merge'; // 'merge', 'replace', or 'merge-duplicates'
+        
+        switch (strategy) {
+            case 'replace':
+                // Replace all meals with imported data
+                mergedMeals = importedMeals;
+                importedCount = Object.values(importedMeals).reduce((sum, meals) => sum + (Array.isArray(meals) ? meals.length : 0), 0);
+                break;
+                
+            case 'merge':
+                // Merge without overwriting existing meals
+                Object.entries(importedMeals).forEach(([date, dateMeals]) => {
+                    if (!mergedMeals[date]) {
+                        mergedMeals[date] = [];
+                    }
+                    
+                    if (Array.isArray(dateMeals)) {
+                        dateMeals.forEach(meal => {
+                            // Check if meal already exists (by id)
+                            const exists = mergedMeals[date].some(m => m.id === meal.id);
+                            if (!exists) {
+                                mergedMeals[date].push(meal);
+                                importedCount++;
+                            } else {
+                                skippedCount++;
+                            }
+                        });
+                    }
+                });
+                break;
+                
+            case 'merge-duplicates':
+                // Merge and replace if meal id already exists
+                Object.entries(importedMeals).forEach(([date, dateMeals]) => {
+                    if (!mergedMeals[date]) {
+                        mergedMeals[date] = [];
+                    }
+                    
+                    if (Array.isArray(dateMeals)) {
+                        dateMeals.forEach(meal => {
+                            const existingIndex = mergedMeals[date].findIndex(m => m.id === meal.id);
+                            if (existingIndex === -1) {
+                                mergedMeals[date].push(meal);
+                                importedCount++;
+                            } else {
+                                mergedMeals[date][existingIndex] = meal;
+                                importedCount++;
+                            }
+                        });
+                    }
+                });
+                break;
+                
+            default:
+                return res.status(400).json({ error: 'Invalid merge strategy. Use "merge", "replace", or "merge-duplicates"' });
+        }
+        
+        // Write back to file
+        await fs.writeFile('meals.json', JSON.stringify(mergedMeals, null, 2));
+        
+        // Commit to git
+        await commitChanges(['meals.json'], `📥 Import daily logs: ${importedCount} meals`);
+        
+        res.json({
+            success: true,
+            message: `Import completed with strategy "${strategy}"`,
+            importedCount,
+            skippedCount,
+            strategy,
+            datesAffected: Object.keys(importedMeals).length
+        });
+        
+        console.log(`✅ JSON import: ${importedCount} meals imported, ${skippedCount} skipped`);
+        
+    } catch (error) {
+        console.error('Error importing JSON:', error);
+        res.status(500).json({ error: 'Failed to import JSON', details: error.message });
+    }
+});
+
 // Excel Export API endpoint
 app.post('/api/export-excel', async (req, res) => {
     try {

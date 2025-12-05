@@ -121,6 +121,20 @@
                             <div class="text-sm opacity-90">Download your food diary data</div>
                         </div>
                     </button>
+                    <button onclick="openJsonExportModal()" class="unified-btn flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white px-8 py-4 rounded-xl">
+                        <div class="text-center">
+                            <div class="text-2xl mb-1">💾</div>
+                            <div class="font-semibold text-lg">Export JSON</div>
+                            <div class="text-sm opacity-90">Backup meal logs</div>
+                        </div>
+                    </button>
+                    <button onclick="openJsonImportModal()" class="unified-btn flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-4 rounded-xl">
+                        <div class="text-center">
+                            <div class="text-2xl mb-1">📥</div>
+                            <div class="font-semibold text-lg">Import JSON</div>
+                            <div class="text-sm opacity-90">Restore meal logs</div>
+                        </div>
+                    </button>
                 </div>
                 <p class="text-sm text-gray-500 text-center">Everything you need in three simple buttons - add meals, manage recipes, and export data!</p>
                 
@@ -697,6 +711,116 @@
                 </div>
             </div>
         
+            <!-- JSON Export Modal -->
+            <div id="jsonExportModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+                <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-semibold text-gray-800">💾 Export Daily Logs as JSON</h3>
+                        <button onclick="closeJsonExportModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Export Range:</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="jsonExportRange" value="all" checked class="mr-2">
+                                    <span>All meal logs</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="jsonExportRange" value="month" class="mr-2">
+                                    <span>Current month only</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="jsonExportRange" value="custom" class="mr-2">
+                                    <span>Custom date range</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Date Range -->
+                        <div id="jsonCustomDateRange" class="hidden">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Start Date:</label>
+                                    <input type="date" id="jsonExportStartDate" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">End Date:</label>
+                                    <input type="date" id="jsonExportEndDate" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview -->
+                        <div>
+                            <p id="jsonExportPreview" class="text-sm text-gray-600 bg-gray-50 p-3 rounded">Preparing export...</p>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="flex space-x-3">
+                            <button onclick="exportMealsAsJson()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg">
+                                💾 Export JSON
+                            </button>
+                            <button onclick="closeJsonExportModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- JSON Import Modal -->
+            <div id="jsonImportModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+                <div class="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-2xl font-semibold text-gray-800">📥 Import Daily Logs from JSON</h3>
+                        <button onclick="closeJsonImportModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Select JSON File:</label>
+                            <input type="file" id="jsonImportFile" accept=".json" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <p class="text-xs text-gray-500 mt-1">Select a JSON export file from another device</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Merge Strategy:</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="mergeStrategy" value="merge" checked class="mr-2">
+                                    <span>Merge (keep existing, add new meals)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="mergeStrategy" value="merge-duplicates" class="mr-2">
+                                    <span>Merge & Replace (update if same meal exists)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="mergeStrategy" value="replace" class="mr-2">
+                                    <span>Replace All (use imported data only)</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Preview -->
+                        <div>
+                            <p id="jsonImportPreview" class="text-sm text-gray-600 bg-gray-50 p-3 rounded">Select a file to see preview...</p>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="flex space-x-3">
+                            <button onclick="importMealsFromJson()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg">
+                                📥 Import JSON
+                            </button>
+                            <button onclick="closeJsonImportModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             </div>
         </div>
     </div>
@@ -6249,6 +6373,211 @@
         function hideExportStatus() {
             const statusDisplay = document.getElementById('exportStatusDisplay');
             statusDisplay.classList.add('hidden');
+        }
+
+        // ========================================
+        // JSON EXPORT/IMPORT FUNCTIONS
+        // ========================================
+
+        function openJsonExportModal() {
+            document.getElementById('jsonExportModal').classList.add('active');
+            updateJsonExportPreview();
+            
+            // Add event listeners for radio buttons
+            document.querySelectorAll('input[name="jsonExportRange"]').forEach(input => {
+                input.addEventListener('change', () => {
+                    const customRange = document.getElementById('jsonCustomDateRange');
+                    if (input.value === 'custom') {
+                        customRange.classList.remove('hidden');
+                    } else {
+                        customRange.classList.add('hidden');
+                    }
+                    updateJsonExportPreview();
+                });
+            });
+        }
+
+        function closeJsonExportModal() {
+            document.getElementById('jsonExportModal').classList.remove('active');
+        }
+
+        function updateJsonExportPreview() {
+            const selectedRange = document.querySelector('input[name="jsonExportRange"]:checked')?.value;
+            const totalDays = Object.keys(mealsByDate || {}).length;
+            const totalMeals = Object.values(mealsByDate || {}).reduce((sum, meals) => sum + (meals?.length || 0), 0);
+            
+            let preview = `Total: ${totalDays} days, ${totalMeals} meals`;
+            
+            if (selectedRange === 'month') {
+                const today = new Date();
+                const monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+                const monthEnd = today.toISOString().split('T')[0];
+                preview += ` (${monthStart} to ${monthEnd})`;
+            }
+            
+            document.getElementById('jsonExportPreview').textContent = preview;
+        }
+
+        async function exportMealsAsJson() {
+            try {
+                const selectedRange = document.querySelector('input[name="jsonExportRange"]:checked').value;
+                let startDate = null;
+                let endDate = null;
+                
+                if (selectedRange === 'month') {
+                    const today = new Date();
+                    startDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+                    endDate = today.toISOString().split('T')[0];
+                } else if (selectedRange === 'custom') {
+                    startDate = document.getElementById('jsonExportStartDate').value;
+                    endDate = document.getElementById('jsonExportEndDate').value;
+                    if (!startDate || !endDate) {
+                        alert('Please select both start and end dates');
+                        return;
+                    }
+                }
+                
+                const filename = `food-diary-${new Date().toISOString().split('T')[0]}.json`;
+                
+                const response = await fetch('/api/export-json', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        mealsByDate,
+                        startDate,
+                        endDate,
+                        filename
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Export failed');
+                }
+                
+                // Download the JSON file
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                alert('✅ JSON export downloaded successfully!');
+                closeJsonExportModal();
+                
+            } catch (error) {
+                console.error('Error exporting JSON:', error);
+                alert('❌ Failed to export JSON: ' + error.message);
+            }
+        }
+
+        function openJsonImportModal() {
+            document.getElementById('jsonImportModal').classList.add('active');
+            
+            document.getElementById('jsonImportFile').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        const importedMeals = data.meals || {};
+                        const totalDays = Object.keys(importedMeals).length;
+                        const totalMeals = Object.values(importedMeals).reduce((sum, meals) => sum + (meals?.length || 0), 0);
+                        
+                        document.getElementById('jsonImportPreview').innerHTML = `
+                            ✅ File loaded: ${totalDays} days, ${totalMeals} meals<br>
+                            <small>Exported: ${data.metadata?.exportedAt || 'Unknown'}</small>
+                        `;
+                    } catch (error) {
+                        document.getElementById('jsonImportPreview').textContent = '❌ Invalid JSON file';
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+
+        function closeJsonImportModal() {
+            document.getElementById('jsonImportModal').classList.remove('active');
+            document.getElementById('jsonImportFile').value = '';
+        }
+
+        async function importMealsFromJson() {
+            try {
+                const file = document.getElementById('jsonImportFile').files[0];
+                if (!file) {
+                    alert('Please select a file');
+                    return;
+                }
+                
+                const fileContent = await file.text();
+                const data = JSON.parse(fileContent);
+                const importedMeals = data.meals || {};
+                
+                const mergeStrategy = document.querySelector('input[name="mergeStrategy"]:checked').value;
+                
+                const response = await fetch('/api/import-json', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        meals: importedMeals,
+                        mergeStrategy
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Import failed');
+                }
+                
+                // Update localStorage with imported meals
+                if (mergeStrategy === 'replace') {
+                    mealsByDate = importedMeals;
+                } else {
+                    // Merge locally
+                    Object.entries(importedMeals).forEach(([date, meals]) => {
+                        if (!mealsByDate[date]) {
+                            mealsByDate[date] = [];
+                        }
+                        if (mergeStrategy === 'merge') {
+                            meals.forEach(meal => {
+                                if (!mealsByDate[date].some(m => m.id === meal.id)) {
+                                    mealsByDate[date].push(meal);
+                                }
+                            });
+                        } else {
+                            // merge-duplicates
+                            meals.forEach(meal => {
+                                const existingIndex = mealsByDate[date].findIndex(m => m.id === meal.id);
+                                if (existingIndex === -1) {
+                                    mealsByDate[date].push(meal);
+                                } else {
+                                    mealsByDate[date][existingIndex] = meal;
+                                }
+                            });
+                        }
+                    });
+                }
+                
+                localStorage.setItem('indianFoodMealsByDate', JSON.stringify(mealsByDate));
+                
+                alert(`✅ Successfully imported ${result.importedCount} meals!\nSkipped: ${result.skippedCount} duplicates`);
+                updateDateDisplay();
+                closeJsonImportModal();
+                
+            } catch (error) {
+                console.error('Error importing JSON:', error);
+                alert('❌ Failed to import JSON: ' + error.message);
+            }
         }
 
         // ========================================
