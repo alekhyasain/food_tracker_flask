@@ -700,6 +700,28 @@
                 <button onclick="closeUnifiedAddModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
             </div>
             
+            <!-- Meal Type Selector -->
+            <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-4 mb-6 border border-blue-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-800 mb-1">🍽️ Meal Type</h4>
+                        <p class="text-sm text-gray-600">Choose when you're eating this meal</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <select id="mealTypeSelector" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-800 font-medium">
+                            <option value="Breakfast">🌅 Breakfast</option>
+                            <option value="Morning Snack">🥨 Morning Snack</option>
+                            <option value="Lunch" selected>🍽️ Lunch</option>
+                            <option value="Evening Snack">🍪 Evening Snack</option>
+                            <option value="Dinner">🌙 Dinner</option>
+                        </select>
+                        <button onclick="setTimeBasedMealType()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm transition duration-200" title="Auto-select based on current time">
+                            🕐 Auto
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Tab Navigation -->
             <div class="border-b border-gray-200 mb-6">
                 <nav class="-mb-px flex space-x-8">
@@ -861,6 +883,16 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Meal Name:</label>
                                     <input type="text" id="inlineMealName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="e.g., My Custom Lunch">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Meal Type:</label>
+                                    <select id="mealBuilderMealType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <option value="Breakfast">Breakfast</option>
+                                        <option value="Morning snack">Morning snack</option>
+                                        <option value="Lunch" selected>Lunch</option>
+                                        <option value="Evening snack">Evening snack</option>
+                                        <option value="Dinner">Dinner</option>
+                                    </select>
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
@@ -4427,59 +4459,146 @@
                 return;
             }
 
-            const sortedMeals = [...currentMeals].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            // Group meals by meal type
+            const mealTypes = ['Breakfast', 'Morning Snack', 'Lunch', 'Evening Snack', 'Dinner'];
+            const groupedMeals = {};
             
-            foodLog.innerHTML = sortedMeals.map(meal => `
-                <div class="border border-gray-200 rounded-lg p-4 fade-in">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-semibold text-gray-800">${meal.description}</h3>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-sm text-gray-500">${formatTime(new Date(meal.timestamp))}</span>
-                            <button onclick="removeMeal(${meal.id})" class="text-red-500 hover:text-red-700 text-sm">&times;</button>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2 text-sm">
-                        <div class="bg-orange-50 px-2 py-1 rounded text-center">
-                            <div class="font-semibold text-orange-600">${meal.nutrition.calories}</div>
-                            <div class="text-orange-500 text-xs">Calories</div>
-                        </div>
-                        <div class="bg-blue-50 px-2 py-1 rounded text-center">
-                            <div class="font-semibold text-blue-600">${meal.nutrition.protein}g</div>
-                            <div class="text-blue-500 text-xs">Protein</div>
-                        </div>
-                        <div class="bg-yellow-50 px-2 py-1 rounded text-center">
-                            <div class="font-semibold text-yellow-600">${meal.nutrition.carbs}g</div>
-                            <div class="text-yellow-500 text-xs">Carbs</div>
-                        </div>
-                        <div class="bg-green-50 px-2 py-1 rounded text-center">
-                            <div class="font-semibold text-green-600">${meal.nutrition.fat}g</div>
-                            <div class="text-green-500 text-xs">Fat</div>
-                        </div>
-                        <div class="bg-purple-50 px-2 py-1 rounded text-center">
-                            <div class="font-semibold text-purple-600">${meal.nutrition.fiber}g</div>
-                            <div class="text-purple-500 text-xs">Fiber</div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-xs text-gray-500">
-                        Source: ${meal.source === 'database' ? 'Indian Food Database' : meal.source === 'ingredients' ? 'Basic Ingredients' : 'Custom Entry'}
-                        ${meal.ingredients ? `
-                            <details class="mt-2">
-                                <summary class="cursor-pointer text-gray-600 hover:text-gray-800">View ingredients (${meal.ingredients.length})</summary>
-                                <div class="mt-1 space-y-1 pl-4">
-                                    ${meal.ingredients.map(ing => `
-                                        <div class="flex justify-between text-xs">
-                                            <span>${ing.name} (${ing.quantity}x ${ing.measurement})</span>
-                                            <span class="text-gray-500">${ing.nutrition.calories} cal</span>
-                                        </div>
-                                    `).join('')}
+            // Initialize all meal types
+            mealTypes.forEach(type => {
+                groupedMeals[type] = [];
+            });
+            
+            // Group meals by their meal type
+            currentMeals.forEach(meal => {
+                const mealType = meal.mealType || 'Lunch'; // Default to Lunch if no meal type
+                if (groupedMeals[mealType]) {
+                    groupedMeals[mealType].push(meal);
+                } else {
+                    // Handle any unexpected meal types by adding to Lunch
+                    groupedMeals['Lunch'].push(meal);
+                }
+            });
+            
+            // Sort meals within each group by timestamp (newest first)
+            Object.keys(groupedMeals).forEach(mealType => {
+                groupedMeals[mealType].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            });
+            
+            // Generate HTML for each meal type group
+            let html = '';
+            mealTypes.forEach(mealType => {
+                const mealsInType = groupedMeals[mealType];
+                
+                if (mealsInType.length === 0) return; // Skip empty meal types
+                
+                // Calculate subtotals for this meal type
+                const subtotals = mealsInType.reduce((totals, meal) => {
+                    totals.calories += meal.nutrition.calories;
+                    totals.protein += meal.nutrition.protein;
+                    totals.carbs += meal.nutrition.carbs;
+                    totals.fat += meal.nutrition.fat;
+                    totals.fiber += meal.nutrition.fiber;
+                    return totals;
+                }, { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 });
+                
+                // Round subtotals
+                subtotals.protein = Math.round(subtotals.protein * 10) / 10;
+                subtotals.carbs = Math.round(subtotals.carbs * 10) / 10;
+                subtotals.fat = Math.round(subtotals.fat * 10) / 10;
+                subtotals.fiber = Math.round(subtotals.fiber * 10) / 10;
+                
+                // Meal type header with subtotals
+                html += `
+                    <div class="meal-type-group mb-6">
+                        <div class="meal-type-header bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-3 border border-blue-200">
+                            <div class="flex justify-between items-center">
+                                <h2 class="text-lg font-semibold text-gray-800">${mealType}</h2>
+                                <span class="text-sm text-gray-600">${mealsInType.length} item${mealsInType.length !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-sm mt-2">
+                                <div class="bg-orange-50 px-2 py-1 rounded text-center">
+                                    <div class="font-semibold text-orange-600">${subtotals.calories}</div>
+                                    <div class="text-orange-500 text-xs">Calories</div>
                                 </div>
-                            </details>
-                        ` : ''}
-                    </div>
-                </div>
-            `).join('');
+                                <div class="bg-blue-50 px-2 py-1 rounded text-center">
+                                    <div class="font-semibold text-blue-600">${subtotals.protein}g</div>
+                                    <div class="text-blue-500 text-xs">Protein</div>
+                                </div>
+                                <div class="bg-yellow-50 px-2 py-1 rounded text-center">
+                                    <div class="font-semibold text-yellow-600">${subtotals.carbs}g</div>
+                                    <div class="text-yellow-500 text-xs">Carbs</div>
+                                </div>
+                                <div class="bg-green-50 px-2 py-1 rounded text-center">
+                                    <div class="font-semibold text-green-600">${subtotals.fat}g</div>
+                                    <div class="text-green-500 text-xs">Fat</div>
+                                </div>
+                                <div class="bg-purple-50 px-2 py-1 rounded text-center">
+                                    <div class="font-semibold text-purple-600">${subtotals.fiber}g</div>
+                                    <div class="text-purple-500 text-xs">Fiber</div>
+                                </div>
+                            </div>
+                        </div>
+                `;
+                
+                // Individual meals in this type
+                mealsInType.forEach(meal => {
+                    html += `
+                        <div class="border border-gray-200 rounded-lg p-4 fade-in ml-4 mb-3">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-semibold text-gray-800">${meal.description}</h3>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm text-gray-500">${formatTime(new Date(meal.timestamp))}</span>
+                                    <button onclick="removeMeal(${meal.id})" class="text-red-500 hover:text-red-700 text-sm">&times;</button>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2 text-sm">
+                                <div class="bg-orange-50 px-2 py-1 rounded text-center">
+                                    <div class="font-semibold text-orange-600">${meal.nutrition.calories}</div>
+                                    <div class="text-orange-500 text-xs">Calories</div>
+                                </div>
+                                <div class="bg-blue-50 px-2 py-1 rounded text-center">
+                                    <div class="font-semibold text-blue-600">${meal.nutrition.protein}g</div>
+                                    <div class="text-blue-500 text-xs">Protein</div>
+                                </div>
+                                <div class="bg-yellow-50 px-2 py-1 rounded text-center">
+                                    <div class="font-semibold text-yellow-600">${meal.nutrition.carbs}g</div>
+                                    <div class="text-yellow-500 text-xs">Carbs</div>
+                                </div>
+                                <div class="bg-green-50 px-2 py-1 rounded text-center">
+                                    <div class="font-semibold text-green-600">${meal.nutrition.fat}g</div>
+                                    <div class="text-green-500 text-xs">Fat</div>
+                                </div>
+                                <div class="bg-purple-50 px-2 py-1 rounded text-center">
+                                    <div class="font-semibold text-purple-600">${meal.nutrition.fiber}g</div>
+                                    <div class="text-purple-500 text-xs">Fiber</div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-xs text-gray-500">
+                                Source: ${meal.source === 'database' ? 'Indian Food Database' : meal.source === 'ingredients' ? 'Basic Ingredients' : 'Custom Entry'}
+                                ${meal.ingredients ? `
+                                    <details class="mt-2">
+                                        <summary class="cursor-pointer text-gray-600 hover:text-gray-800">View ingredients (${meal.ingredients.length})</summary>
+                                        <div class="mt-1 space-y-1 pl-4">
+                                            ${meal.ingredients.map(ing => `
+                                                <div class="flex justify-between text-xs">
+                                                    <span>${ing.name} (${ing.quantity}x ${ing.measurement})</span>
+                                                    <span class="text-gray-500">${ing.nutrition.calories} cal</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </details>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>'; // Close meal-type-group
+            });
+            
+            foodLog.innerHTML = html;
         }
 
         function removeMeal(mealId) {
@@ -6115,6 +6234,8 @@
             switchAddTab('quickDishes');
             // Populate quick dishes in modal
             populateQuickDishesInModal();
+            // Auto-select meal type based on current time
+            setTimeBasedMealType();
         }
 
         function closeUnifiedAddModal() {
@@ -6296,6 +6417,9 @@
             
             if (!dish) return;
             
+            // Get selected meal type from the modal
+            const selectedMealType = getSelectedMealType();
+            
             const nutrition = dish.total_per_serving;
             const meal = {
                 id: Date.now(),
@@ -6308,7 +6432,8 @@
                     fat: Math.round(nutrition.fat * servings * 10) / 10,
                     fiber: Math.round(nutrition.fiber * servings * 10) / 10
                 },
-                source: 'database'
+                source: 'database',
+                mealType: selectedMealType // Use selected meal type from modal
             };
             
             addMealToDate(meal);
@@ -6319,7 +6444,7 @@
             // Reset serving size
             document.getElementById(`modal_servings_${dishKey}`).value = 1;
             
-            showSuccessMessage(`Added ${dish.name}!`);
+            showSuccessMessage(`Added ${dish.name} to ${selectedMealType}!`);
         }
 
         function addCustomEntryFromModal() {
@@ -7302,6 +7427,7 @@
                     fiber: Math.round(perServing.fiber * servingsToLog * 10) / 10
                 },
                 source: 'mixed_meal',
+                mealType: 'Lunch', // Default meal type for mixed meals
                 items: inlineMealItems.map(item => ({
                     type: item.type,
                     name: item.name,
@@ -7745,6 +7871,9 @@
             const quantity = parseFloat(quantityInput.value);
             const measurementDisplay = measurementSelect.options[measurementSelect.selectedIndex].text;
             
+            // Get selected meal type from the modal
+            const selectedMealType = getSelectedMealType();
+            
             // Create ingredient entry with real nutrition data
             const ingredientMeal = {
                 id: Date.now(),
@@ -7758,6 +7887,7 @@
                     fiber: Math.round(measurement.fiber * quantity * 10) / 10
                 },
                 source: 'enhanced_ingredient',
+                mealType: selectedMealType, // Use selected meal type from modal
                 ingredient_data: {
                     category: selectedEnhancedIngredient.category,
                     key: selectedEnhancedIngredient.key,
@@ -7780,7 +7910,7 @@
             clearEnhancedIngredientForm();
             
             // Show success message
-            showSuccessMessage(`✅ Added ${selectedEnhancedIngredient.name} with accurate nutrition data!`);
+            showSuccessMessage(`✅ Added ${selectedEnhancedIngredient.name} to ${selectedMealType} with accurate nutrition data!`);
         }
         
         function clearEnhancedIngredientSelection() {
@@ -8884,6 +9014,41 @@
             originalUpdateDailySummary();
             updateWeeklyDeficitDisplay();
         };
+
+        // ========================================
+        // MEAL TYPE FUNCTIONALITY
+        // ========================================
+        
+        // Time-based meal type detection
+        function setTimeBasedMealType() {
+            const now = new Date();
+            const hour = now.getHours();
+            const mealTypeSelector = document.getElementById('mealTypeSelector');
+            
+            let mealType;
+            if (hour >= 5 && hour < 10) {
+                mealType = 'Breakfast';
+            } else if (hour >= 10 && hour < 12) {
+                mealType = 'Morning Snack';
+            } else if (hour >= 12 && hour < 15) {
+                mealType = 'Lunch';
+            } else if (hour >= 15 && hour < 18) {
+                mealType = 'Evening Snack';
+            } else {
+                mealType = 'Dinner';
+            }
+            
+            if (mealTypeSelector) {
+                mealTypeSelector.value = mealType;
+                showSuccessMessage(`🕐 Auto-selected ${mealType} based on current time (${hour}:${now.getMinutes().toString().padStart(2, '0')})`);
+            }
+        }
+        
+        // Get selected meal type from modal
+        function getSelectedMealType() {
+            const mealTypeSelector = document.getElementById('mealTypeSelector');
+            return mealTypeSelector ? mealTypeSelector.value : 'Lunch';
+        }
 
     </script>
 
