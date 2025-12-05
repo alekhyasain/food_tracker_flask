@@ -776,6 +776,77 @@ app.post('/api/export-json', async (req, res) => {
     }
 });
 
+// Auto-save JSON export to tracker_json folder
+app.post('/api/auto-export-json', async (req, res) => {
+    try {
+        const { mealsByDate, startDate, endDate } = req.body;
+        
+        if (!mealsByDate || typeof mealsByDate !== 'object') {
+            return res.status(400).json({ error: 'Invalid meals data' });
+        }
+        
+        // Ensure tracker_json folder exists
+        const trackerJsonDir = path.join(__dirname, 'tracker_json');
+        try {
+            await fs.mkdir(trackerJsonDir, { recursive: true });
+        } catch (err) {
+            console.error('Error creating tracker_json directory:', err);
+        }
+        
+        // Filter by date range if provided
+        let filteredMeals = mealsByDate;
+        if (startDate && endDate) {
+            filteredMeals = {};
+            Object.keys(mealsByDate).forEach(dateKey => {
+                if (dateKey >= startDate && dateKey <= endDate) {
+                    filteredMeals[dateKey] = mealsByDate[dateKey];
+                }
+            });
+        }
+        
+        // Create export object with metadata
+        const exportData = {
+            metadata: {
+                exportedAt: new Date().toISOString(),
+                version: '1.0',
+                appName: 'Food Diary',
+                format: 'json',
+                totalDays: Object.keys(filteredMeals).length,
+                totalMeals: Object.values(filteredMeals).reduce((sum, meals) => sum + (Array.isArray(meals) ? meals.length : 0), 0),
+                dateRange: {
+                    from: startDate || Object.keys(filteredMeals).sort()[0] || null,
+                    to: endDate || Object.keys(filteredMeals).sort().pop() || null
+                }
+            },
+            meals: filteredMeals
+        };
+        
+        // Generate filename with timestamp
+        const now = new Date();
+        const timestamp = now.toISOString().split('T')[0]; // YYYY-MM-DD
+        const timeStamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5); // HH-MM-SS
+        const filename = `food-diary-${timestamp}_${timeStamp}.json`;
+        const filepath = path.join(trackerJsonDir, filename);
+        
+        // Write to file
+        await fs.writeFile(filepath, JSON.stringify(exportData, null, 2));
+        
+        console.log(`✅ Auto-export JSON saved to tracker_json/${filename}`);
+        
+        res.json({ 
+            success: true, 
+            filename: filename,
+            path: filepath,
+            message: `Export saved to tracker_json/${filename}`,
+            totalMeals: exportData.metadata.totalMeals
+        });
+        
+    } catch (error) {
+        console.error('Error auto-exporting JSON:', error);
+        res.status(500).json({ error: 'Failed to auto-export JSON: ' + error.message });
+    }
+});
+
 // JSON Import for Daily Logs (Upload and merge)
 app.post('/api/import-json', async (req, res) => {
     try {

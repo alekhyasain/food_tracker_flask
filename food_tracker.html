@@ -6447,12 +6447,30 @@
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
                 
-                alert(`✅ Exported ${exportData.metadata.totalMeals} meals to ${filename}`);
-                console.log('✅ JSON export completed:', filename);
+                // Also auto-save to tracker_json folder on server
+                try {
+                    const autoExportResponse = await fetch('/api/auto-export-json', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            mealsByDate
+                        })
+                    });
+                    
+                    if (autoExportResponse.ok) {
+                        const autoExportResult = await autoExportResponse.json();
+                        console.log(`✅ JSON export completed: ${exportData.metadata.totalMeals} meals exported and auto-saved to tracker_json/${autoExportResult.filename}`);
+                    } else {
+                        console.log(`✅ JSON export completed: ${exportData.metadata.totalMeals} meals exported to ${filename}`);
+                    }
+                } catch (error) {
+                    console.log(`✅ JSON export completed: ${exportData.metadata.totalMeals} meals exported to ${filename}`);
+                }
                 
             } catch (error) {
-                console.error('Error exporting JSON:', error);
-                alert('❌ Failed to export JSON: ' + error.message);
+                console.error('❌ Failed to export JSON:', error.message);
             }
         }
 
@@ -6544,12 +6562,35 @@
                 window.URL.revokeObjectURL(url);
                 document.body.removeChild(a);
                 
-                alert('✅ JSON export downloaded successfully!');
+                // Also auto-save to tracker_json folder on server
+                try {
+                    const autoExportResponse = await fetch('/api/auto-export-json', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            mealsByDate,
+                            startDate,
+                            endDate
+                        })
+                    });
+                    
+                    if (autoExportResponse.ok) {
+                        const autoExportResult = await autoExportResponse.json();
+                        console.log(`✅ JSON export downloaded and auto-saved to tracker_json/${autoExportResult.filename}`);
+                    } else {
+                        console.warn('⚠️ Auto-save to tracker_json failed, but file was downloaded');
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Could not auto-save to tracker_json folder:', error.message);
+                }
+                
                 closeJsonExportModal();
                 
             } catch (error) {
-                console.error('Error exporting JSON:', error);
-                alert('❌ Failed to export JSON: ' + error.message);
+                console.error('❌ Failed to export JSON:', error.message);
+
             }
         }
 
@@ -6613,8 +6654,11 @@
                 const result = await response.json();
                 
                 if (!response.ok) {
+                    console.error('❌ Server error:', result.error);
                     throw new Error(result.error || 'Import failed');
                 }
+                
+                console.log(`✅ Successfully imported ${result.importedCount} meals`);
                 
                 // Update localStorage with imported meals
                 if (mergeStrategy === 'replace') {
@@ -6647,13 +6691,12 @@
                 
                 localStorage.setItem('indianFoodMealsByDate', JSON.stringify(mealsByDate));
                 
-                alert(`✅ Successfully imported ${result.importedCount} meals!\nSkipped: ${result.skippedCount} duplicates`);
+                console.log(`✅ Import complete: ${result.importedCount} meals imported, ${result.skippedCount} skipped`);
                 updateDateDisplay();
                 closeJsonImportModal();
                 
             } catch (error) {
-                console.error('Error importing JSON:', error);
-                alert('❌ Failed to import JSON: ' + error.message);
+                console.error('❌ Failed to import JSON:', error.message);
             }
         }
 
