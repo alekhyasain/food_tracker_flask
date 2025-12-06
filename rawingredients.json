@@ -660,6 +660,18 @@
             "fiber": 3
           }
         }
+      },
+      "starbucks_hazelnut_syrup": {
+        "name": "Starbucks Hazelnut Syrup",
+        "measurements": {
+          "1_pump": {
+            "calories": 20,
+            "protein": 0,
+            "carbs": 5,
+            "fat": 0,
+            "fiber": 0
+          }
+        }
       }
     },
     "oils_fats": {
