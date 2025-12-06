@@ -52,14 +52,14 @@
         }
       },
       "barnyard_millet": {
-        "name": "barnyard millet",
+        "name": "Barnyard Millet",
         "measurements": {
-          "1_cup_cooked": {
-            "calories": 207.06,
-            "protein": 6.11,
-            "carbs": 41.19,
-            "fat": 1.74,
-            "fiber": 2.26
+          "1_cup_uncooked": {
+            "calories": 756,
+            "protein": 22,
+            "carbs": 145.7,
+            "fat": 84,
+            "fiber": 17
           }
         }
       },
