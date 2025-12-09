@@ -582,18 +582,6 @@
           }
         },
         {
-          "key": "oils_fats.nut_butter",
-          "name": "Nut butter",
-          "amount": "0.5x 1 tbsp",
-          "nutrition": {
-            "calories": 50.5,
-            "protein": 2,
-            "carbs": 2,
-            "fat": 4.5,
-            "fiber": 0.8
-          }
-        },
-        {
           "key": "oils_fats.pumpkin_seeds",
           "name": "Pumpkin seeds",
           "amount": "0.16x 1 tbsp",
@@ -642,24 +630,36 @@
           }
         },
         {
-          "key": "other.dates",
-          "name": "Dates",
+          "key": "oils_fats.nut_butter",
+          "name": "Nut butter",
+          "amount": "0.33x 1 tbsp",
+          "nutrition": {
+            "calories": 33.33,
+            "protein": 1.32,
+            "carbs": 1.32,
+            "fat": 2.97,
+            "fiber": 0.528
+          }
+        },
+        {
+          "key": "other.pitted_dates_nour",
+          "name": "Pitted dates nour",
           "amount": "1x 1 piece",
           "nutrition": {
-            "calories": 66,
-            "protein": 0,
-            "carbs": 16,
+            "calories": 24,
+            "protein": 0.2,
+            "carbs": 6,
             "fat": 0,
-            "fiber": 1.6
+            "fiber": 0.6
           }
         }
       ],
       "total_per_serving": {
-        "calories": 242,
-        "protein": 5.9,
-        "carbs": 38.4,
-        "fat": 8.4,
-        "fiber": 7.3
+        "calories": 183,
+        "protein": 5.5,
+        "carbs": 27.8,
+        "fat": 6.8,
+        "fiber": 6.1
       }
     },
     "peanut_butter_jam_sandwich": {
