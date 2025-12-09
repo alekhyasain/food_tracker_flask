@@ -990,27 +990,6 @@
       "date": "2025-12-07"
     },
     {
-      "id": 1765309469482,
-      "description": "Three Bridges Cheddar & Chive Potatoes (0.4x 1 piece)",
-      "timestamp": "2025-12-07T19:44:29.000Z",
-      "nutrition": {
-        "calories": 88,
-        "protein": 4.8,
-        "carbs": 6.4,
-        "fat": 5.2,
-        "fiber": 0.8
-      },
-      "source": "enhanced_ingredient",
-      "mealType": "Morning Snack",
-      "ingredient_data": {
-        "category": "other",
-        "key": "three_bridges_cheddar__chive_potatoes",
-        "measurement": "1_piece",
-        "quantity": 0.4
-      },
-      "date": "2025-12-07"
-    },
-    {
       "id": 1765309485669,
       "description": "Protein Puffs (0.5x 1 serving)",
       "timestamp": "2025-12-07T19:44:45.000Z",
