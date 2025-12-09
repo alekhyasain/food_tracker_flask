@@ -944,6 +944,21 @@
       "source": "database",
       "mealType": "Lunch",
       "date": "2025-12-09"
+    },
+    {
+      "id": 1765316545150,
+      "description": "Oat milk coffee (1 serving)",
+      "timestamp": "2025-12-09T21:42:25.000Z",
+      "nutrition": {
+        "calories": 68,
+        "protein": 1,
+        "carbs": 9.9,
+        "fat": 2.5,
+        "fiber": 0.5
+      },
+      "source": "database",
+      "mealType": "Evening Snack",
+      "date": "2025-12-09"
     }
   ],
   "2025-12-07": [
