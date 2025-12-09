@@ -1617,6 +1617,68 @@
         "fat": 30.2,
         "fiber": 2.8
       }
+    },
+    "bell_pepper_salad": {
+      "name": "Bell pepper Salad",
+      "category": "other",
+      "servings": 2,
+      "ingredients": [
+        {
+          "key": "vegetables.red_bell_pepper",
+          "name": "Red bell pepper",
+          "amount": "0.5x 1 medium",
+          "nutrition": {
+            "calories": 18.5,
+            "protein": 0.5,
+            "carbs": 3.5,
+            "fat": 0,
+            "fiber": 0
+          }
+        },
+        {
+          "key": "vegetables.yellow_bell_pepper",
+          "name": "Yellow Bell pepper",
+          "amount": "0.5x 1",
+          "nutrition": {
+            "calories": 25,
+            "protein": 0.93,
+            "carbs": 5.88,
+            "fat": 0.195,
+            "fiber": 0.835
+          }
+        },
+        {
+          "key": "vegetables.orange_bell_pepper",
+          "name": "Orange bell pepper",
+          "amount": "0.5x 1",
+          "nutrition": {
+            "calories": 15.5,
+            "protein": 0.5,
+            "carbs": 3.5,
+            "fat": 0.1,
+            "fiber": 1
+          }
+        },
+        {
+          "key": "vegetables.cherry_tomato",
+          "name": "Cherry tomato",
+          "amount": "8x 1",
+          "nutrition": {
+            "calories": 16,
+            "protein": 0.4,
+            "carbs": 2.4,
+            "fat": 0.08,
+            "fiber": 0.8
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 38,
+        "protein": 1.2,
+        "carbs": 7.6,
+        "fat": 0.2,
+        "fiber": 1.3
+      }
     }
   },
   "ingredients_database": {
