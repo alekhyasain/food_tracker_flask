@@ -1073,6 +1073,18 @@
             "fiber": 2.4
           }
         }
+      },
+      "costco_burrata__truffle_ravioli": {
+        "name": "Costco Burrata & Truffle Ravioli",
+        "measurements": {
+          "1_cup": {
+            "calories": 270,
+            "protein": 9,
+            "carbs": 35,
+            "fat": 11,
+            "fiber": 3
+          }
+        }
       }
     }
   }
