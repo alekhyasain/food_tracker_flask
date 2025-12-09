@@ -1014,6 +1014,18 @@
             "fiber": 3.5
           }
         }
+      },
+      "1_persimmon": {
+        "name": "1 persimmon",
+        "measurements": {
+          "1_medium": {
+            "calories": 120,
+            "protein": 1,
+            "carbs": 30,
+            "fat": 0,
+            "fiber": 6
+          }
+        }
       }
     },
     "other": {
