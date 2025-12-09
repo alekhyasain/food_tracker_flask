@@ -916,21 +916,6 @@
         "quantity": 1
       },
       "date": "2025-12-07"
-    },
-    {
-      "id": 1765309014898,
-      "description": "Chole Homemade (2 servings)",
-      "timestamp": "2025-12-07T19:36:54.000Z",
-      "nutrition": {
-        "calories": 614,
-        "protein": 28.4,
-        "carbs": 89.8,
-        "fat": 17.2,
-        "fiber": 17.6
-      },
-      "source": "database",
-      "mealType": "Dinner",
-      "date": "2025-12-07"
     }
   ]
 }
