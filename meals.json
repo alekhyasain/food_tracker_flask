@@ -1615,6 +1615,105 @@
       "source": "database",
       "mealType": "Lunch",
       "date": "2025-12-08"
+    },
+    {
+      "id": 1765310585825,
+      "description": "Quinoa (0.125x 1 cup uncooked)",
+      "timestamp": "2025-12-08T20:03:05.000Z",
+      "nutrition": {
+        "calories": 78,
+        "protein": 3,
+        "carbs": 13.6,
+        "fat": 1.3,
+        "fiber": 1.5
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Lunch",
+      "ingredient_data": {
+        "category": "grains",
+        "key": "quinoa",
+        "measurement": "1_cup_uncooked",
+        "quantity": 0.125
+      },
+      "date": "2025-12-08"
+    },
+    {
+      "id": 1765310593725,
+      "description": "White Rice (0.0625x 1 cup uncooked)",
+      "timestamp": "2025-12-08T20:03:13.000Z",
+      "nutrition": {
+        "calories": 44,
+        "protein": 0.8,
+        "carbs": 9.7,
+        "fat": 0.1,
+        "fiber": 0.2
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Lunch",
+      "ingredient_data": {
+        "category": "grains",
+        "key": "white_rice",
+        "measurement": "1_cup_uncooked",
+        "quantity": 0.0625
+      },
+      "date": "2025-12-08"
+    },
+    {
+      "id": 1765310600858,
+      "description": "Low fat dahi (0.33x 1 cup)",
+      "timestamp": "2025-12-08T20:03:20.000Z",
+      "nutrition": {
+        "calories": 36,
+        "protein": 2.6,
+        "carbs": 3.6,
+        "fat": 1.3,
+        "fiber": 0
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Lunch",
+      "ingredient_data": {
+        "category": "other",
+        "key": "low_fat_dahi",
+        "measurement": "1_cup",
+        "quantity": 0.33
+      },
+      "date": "2025-12-08"
+    },
+    {
+      "id": 1765310613242,
+      "description": "Orgain vegan protein powder (0.8x 1 serving)",
+      "timestamp": "2025-12-08T20:03:33.000Z",
+      "nutrition": {
+        "calories": 128,
+        "protein": 16.8,
+        "carbs": 16,
+        "fat": 3.6,
+        "fiber": 6.4
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Evening Snack",
+      "ingredient_data": {
+        "category": "other",
+        "key": "orgain_vegan_protein_powder",
+        "measurement": "1_serving",
+        "quantity": 0.8
+      },
+      "date": "2025-12-08"
+    },
+    {
+      "id": 1765310680322,
+      "description": "Roasted Chana (1 serving)",
+      "timestamp": "2025-12-08T20:04:40.000Z",
+      "nutrition": {
+        "calories": 210,
+        "protein": 10.5,
+        "carbs": 32.9,
+        "fat": 4.5,
+        "fiber": 6.3
+      },
+      "source": "database",
+      "mealType": "Evening Snack",
+      "date": "2025-12-08"
     }
   ]
 }
