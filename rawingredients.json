@@ -684,6 +684,18 @@
             "fiber": 0
           }
         }
+      },
+      "ginger_garlic_paste_mothers": {
+        "name": "Ginger garlic paste Mother's",
+        "measurements": {
+          "1_tbsp": {
+            "calories": 15,
+            "protein": 1,
+            "carbs": 3,
+            "fat": 0,
+            "fiber": 0
+          }
+        }
       }
     },
     "oils_fats": {
