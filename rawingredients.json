@@ -477,6 +477,18 @@
             "fiber": 2.8
           }
         }
+      },
+      "spinach_packet": {
+        "name": "Spinach packet",
+        "measurements": {
+          "1_packet": {
+            "calories": 70,
+            "protein": 7,
+            "carbs": 10.5,
+            "fat": 0,
+            "fiber": 7
+          }
+        }
       }
     },
     "spices_seasonings": {
