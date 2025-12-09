@@ -1205,6 +1205,18 @@
             "fiber": 0.8
           }
         }
+      },
+      "orgain_vegan_protein_powder": {
+        "name": "Orgain vegan protein powder",
+        "measurements": {
+          "1_serving": {
+            "calories": 160,
+            "protein": 21,
+            "carbs": 20,
+            "fat": 4.5,
+            "fiber": 8
+          }
+        }
       }
     }
   }
