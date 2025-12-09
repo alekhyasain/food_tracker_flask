@@ -1325,6 +1325,18 @@
             "fiber": 4
           }
         }
+      },
+      "suji_halwa_homemade": {
+        "name": "Suji Halwa Homemade",
+        "measurements": {
+          "1_serving": {
+            "calories": 100,
+            "protein": 3,
+            "carbs": 20,
+            "fat": 4,
+            "fiber": 0
+          }
+        }
       }
     }
   }
