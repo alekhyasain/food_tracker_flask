@@ -1028,48 +1028,48 @@
           }
         },
         {
-          "key": "dals_legumes.moong_dal",
-          "name": "Moong Dal",
-          "amount": "0.3x 1 cup uncooked",
+          "key": "grains.white_rice",
+          "name": "White Rice",
+          "amount": "0.48x 1 cup uncooked",
           "nutrition": {
-            "calories": 104.1,
-            "protein": 7.199999999999999,
-            "carbs": 17.7,
-            "fat": 0.36,
-            "fiber": 4.8
+            "calories": 336.47999999999996,
+            "protein": 6.192,
+            "carbs": 74.25599999999999,
+            "fat": 0.528,
+            "fiber": 1.8719999999999999
           }
         },
         {
-          "key": "grains.white_rice",
-          "name": "White Rice",
-          "amount": "0.525x 1 cup uncooked",
+          "key": "dals_legumes.moong_dal",
+          "name": "Moong Dal",
+          "amount": "0.33x 1 cup uncooked",
           "nutrition": {
-            "calories": 368.02500000000003,
-            "protein": 6.772500000000001,
-            "carbs": 81.2175,
-            "fat": 0.5775000000000001,
-            "fiber": 2.0475
+            "calories": 114.51,
+            "protein": 7.92,
+            "carbs": 19.470000000000002,
+            "fat": 0.396,
+            "fiber": 5.28
           }
         },
         {
           "key": "oils_fats.cashews",
           "name": "Cashews",
-          "amount": "3x 1 piece",
+          "amount": "8x 1 piece",
           "nutrition": {
-            "calories": 30,
-            "protein": 0.75,
-            "carbs": 1.5,
-            "fat": 1.7999999999999998,
+            "calories": 80,
+            "protein": 2,
+            "carbs": 4,
+            "fat": 4.8,
             "fiber": 0
           }
         }
       ],
       "total_per_serving": {
-        "calories": 296,
-        "protein": 7.4,
-        "carbs": 50.2,
-        "fat": 6.1,
-        "fiber": 3.4
+        "calories": 310,
+        "protein": 8.1,
+        "carbs": 48.9,
+        "fat": 7.6,
+        "fiber": 3.6
       }
     },
     "unsweetened_oat_milk_coffee": {
