@@ -1193,6 +1193,18 @@
             "fiber": 0
           }
         }
+      },
+      "california_oat_milk_barista_blend": {
+        "name": "California oat milk barista blend",
+        "measurements": {
+          "1_cup": {
+            "calories": 130,
+            "protein": 2,
+            "carbs": 13,
+            "fat": 7,
+            "fiber": 0.8
+          }
+        }
       }
     }
   }
