@@ -1301,6 +1301,18 @@
             "fiber": 0.03
           }
         }
+      },
+      "aloo_tikki_air_fried": {
+        "name": "Aloo tikki air fried",
+        "measurements": {
+          "1_tikki": {
+            "calories": 150,
+            "protein": 5,
+            "carbs": 25,
+            "fat": 4,
+            "fiber": 4
+          }
+        }
       }
     }
   }
