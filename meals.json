@@ -967,6 +967,84 @@
       "source": "database",
       "mealType": "Breakfast",
       "date": "2025-12-07"
+    },
+    {
+      "id": 1765309312223,
+      "description": "Brown egg (1x 1 large)",
+      "timestamp": "2025-12-07T19:41:52.000Z",
+      "nutrition": {
+        "calories": 70,
+        "protein": 6,
+        "carbs": 0,
+        "fat": 5,
+        "fiber": 0
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Breakfast",
+      "ingredient_data": {
+        "category": "other",
+        "key": "brown_egg",
+        "measurement": "1_large",
+        "quantity": 1
+      },
+      "date": "2025-12-07"
+    },
+    {
+      "id": 1765309469482,
+      "description": "Three Bridges Cheddar & Chive Potatoes (0.4x 1 piece)",
+      "timestamp": "2025-12-07T19:44:29.000Z",
+      "nutrition": {
+        "calories": 88,
+        "protein": 4.8,
+        "carbs": 6.4,
+        "fat": 5.2,
+        "fiber": 0.8
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Morning Snack",
+      "ingredient_data": {
+        "category": "other",
+        "key": "three_bridges_cheddar__chive_potatoes",
+        "measurement": "1_piece",
+        "quantity": 0.4
+      },
+      "date": "2025-12-07"
+    },
+    {
+      "id": 1765309485669,
+      "description": "Protein Puffs (0.5x 1 serving)",
+      "timestamp": "2025-12-07T19:44:45.000Z",
+      "nutrition": {
+        "calories": 52,
+        "protein": 2,
+        "carbs": 8,
+        "fat": 1.9,
+        "fiber": 0.8
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Evening Snack",
+      "ingredient_data": {
+        "category": "other",
+        "key": "protein_puffs",
+        "measurement": "1_serving",
+        "quantity": 0.5
+      },
+      "date": "2025-12-07"
+    },
+    {
+      "id": 1765309755545,
+      "description": "Bell pepper Salad (1 serving)",
+      "timestamp": "2025-12-07T19:49:15.000Z",
+      "nutrition": {
+        "calories": 38,
+        "protein": 1.2,
+        "carbs": 7.6,
+        "fat": 0.2,
+        "fiber": 1.3
+      },
+      "source": "database",
+      "mealType": "Evening Snack",
+      "date": "2025-12-07"
     }
   ]
 }
