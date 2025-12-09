@@ -1241,6 +1241,18 @@
             "fiber": 4.5
           }
         }
+      },
+      "protein_puffs": {
+        "name": "Protein Puffs",
+        "measurements": {
+          "1_serving": {
+            "calories": 104,
+            "protein": 4,
+            "carbs": 16,
+            "fat": 3.7,
+            "fiber": 1.5
+          }
+        }
       }
     }
   }
