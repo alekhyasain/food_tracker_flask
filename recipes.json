@@ -2025,6 +2025,116 @@
         "fat": 1.7,
         "fiber": 1.8
       }
+    },
+    "berry_smoothie": {
+      "name": "Berry smoothie",
+      "category": "other",
+      "servings": 2,
+      "ingredients": [
+        {
+          "key": "fruits.strawberries",
+          "name": "Strawberries",
+          "amount": "0.67x 1 cup sliced",
+          "nutrition": {
+            "calories": 35.5904,
+            "protein": 0.7437000000000001,
+            "carbs": 8.5425,
+            "fat": 0.335,
+            "fiber": 2.2244
+          }
+        },
+        {
+          "key": "fruits.blueberries",
+          "name": "Blueberries",
+          "amount": "0.5x 1 cup sliced",
+          "nutrition": {
+            "calories": 42,
+            "protein": 0.5,
+            "carbs": 10.5,
+            "fat": 0.25,
+            "fiber": 2
+          }
+        },
+        {
+          "key": "oils_fats.flaxseed_powder",
+          "name": "Flaxseed powder",
+          "amount": "0.33x 1 tbsp",
+          "nutrition": {
+            "calories": 12.21,
+            "protein": 0.33,
+            "carbs": 0.66,
+            "fat": 0.99,
+            "fiber": 0.66
+          }
+        },
+        {
+          "key": "fruits.goji_berries",
+          "name": "Goji berries",
+          "amount": "1x 1 tbsp",
+          "nutrition": {
+            "calories": 18,
+            "protein": 1,
+            "carbs": 5,
+            "fat": 0,
+            "fiber": 1
+          }
+        },
+        {
+          "key": "oils_fats.pumpkin_seeds",
+          "name": "Pumpkin seeds",
+          "amount": "0.33x 1 tbsp",
+          "nutrition": {
+            "calories": 18.810000000000002,
+            "protein": 0.99,
+            "carbs": 0.99,
+            "fat": 1.32,
+            "fiber": 0.66
+          }
+        },
+        {
+          "key": "other.greek_yogurt_low_fat",
+          "name": "Greek yogurt low fat",
+          "amount": "0.25x 1 cup",
+          "nutrition": {
+            "calories": 46.5,
+            "protein": 3.6625,
+            "carbs": 4.0975,
+            "fat": 1.7325,
+            "fiber": 0
+          }
+        },
+        {
+          "key": "other.unsweetned_oat_milk",
+          "name": "Unsweetned Oat milk",
+          "amount": "0.325x 1 cup",
+          "nutrition": {
+            "calories": 19.5,
+            "protein": 0.325,
+            "carbs": 2.275,
+            "fat": 0.65,
+            "fiber": 0.1625
+          }
+        },
+        {
+          "key": "other.pitted_dates_nour",
+          "name": "Pitted dates nour",
+          "amount": "3x 1 piece",
+          "nutrition": {
+            "calories": 72,
+            "protein": 0.6000000000000001,
+            "carbs": 18,
+            "fat": 0,
+            "fiber": 1.7999999999999998
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 132,
+        "protein": 4.1,
+        "carbs": 25,
+        "fat": 2.6,
+        "fiber": 4.3
+      }
     }
   },
   "ingredients_database": {
