@@ -1918,14 +1918,38 @@
             "fat": 3.5999999999999996,
             "fiber": 0
           }
+        },
+        {
+          "key": "vegetables.frozen_carrots_and_peas",
+          "name": "Frozen Carrots and Peas",
+          "amount": "0.5x 1 cup",
+          "nutrition": {
+            "calories": 37.5,
+            "protein": 2.25,
+            "carbs": 7.5,
+            "fat": 0,
+            "fiber": 2.25
+          }
+        },
+        {
+          "key": "oils_fats.olive_oil",
+          "name": "Olive oil",
+          "amount": "2x 1 tsp",
+          "nutrition": {
+            "calories": 80,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 9,
+            "fiber": 0
+          }
         }
       ],
       "total_per_serving": {
-        "calories": 333,
-        "protein": 12.1,
-        "carbs": 54.5,
-        "fat": 28.9,
-        "fiber": 8.1
+        "calories": 392,
+        "protein": 13.2,
+        "carbs": 58.2,
+        "fat": 33.4,
+        "fiber": 9.2
       }
     }
   },
