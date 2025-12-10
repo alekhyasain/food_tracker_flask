@@ -549,6 +549,18 @@
             "fiber": 4.5
           }
         }
+      },
+      "brocolli": {
+        "name": "Brocolli",
+        "measurements": {
+          "1_cut_box": {
+            "calories": 123,
+            "protein": 10.2,
+            "carbs": 24.1,
+            "fat": 1.3,
+            "fiber": 9.4
+          }
+        }
       }
     },
     "spices_seasonings": {
