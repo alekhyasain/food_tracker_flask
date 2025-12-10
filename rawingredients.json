@@ -1038,6 +1038,18 @@
             "fiber": 6
           }
         }
+      },
+      "strawberries": {
+        "name": "Strawberries",
+        "measurements": {
+          "1_cup_sliced": {
+            "calories": 53.12,
+            "protein": 1.11,
+            "carbs": 12.75,
+            "fat": 0.5,
+            "fiber": 3.32
+          }
+        }
       }
     },
     "other": {
