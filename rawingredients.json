@@ -537,6 +537,18 @@
             "fiber": 0.1
           }
         }
+      },
+      "frozen_carrots_and_peas": {
+        "name": "Frozen Carrots and Peas",
+        "measurements": {
+          "1_cup": {
+            "calories": 75,
+            "protein": 4.5,
+            "carbs": 15,
+            "fat": 0,
+            "fiber": 4.5
+          }
+        }
       }
     },
     "spices_seasonings": {
