@@ -840,6 +840,18 @@
             "fiber": 1
           }
         }
+      },
+      "pappula_podi": {
+        "name": "Pappula podi",
+        "measurements": {
+          "1_tbsp": {
+            "calories": 45.59,
+            "protein": 1.75,
+            "carbs": 1.78,
+            "fat": 3.78,
+            "fiber": 0.67
+          }
+        }
       }
     },
     "oils_fats": {
