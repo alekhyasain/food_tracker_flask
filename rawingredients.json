@@ -852,6 +852,18 @@
             "fiber": 0.67
           }
         }
+      },
+      "costco_hummus": {
+        "name": "Costco Hummus",
+        "measurements": {
+          "1_container": {
+            "calories": 170,
+            "protein": 4,
+            "carbs": 11,
+            "fat": 13,
+            "fiber": 3
+          }
+        }
       }
     },
     "oils_fats": {
