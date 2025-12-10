@@ -2185,6 +2185,56 @@
         "fat": 4.5,
         "fiber": 2.7
       }
+    },
+    "hummus_sandwich": {
+      "name": "Hummus sandwich",
+      "category": "bread",
+      "servings": 1,
+      "ingredients": [
+        {
+          "key": "grains.whole_wheat_bread_oroweat",
+          "name": "Whole wheat bread oroweat",
+          "amount": "1x 1 slice",
+          "nutrition": {
+            "calories": 110,
+            "protein": 4,
+            "carbs": 21,
+            "fat": 2,
+            "fiber": 3
+          }
+        },
+        {
+          "key": "spices_seasonings.costco_hummus",
+          "name": "Costco Hummus",
+          "amount": "0.5x 1 container",
+          "nutrition": {
+            "calories": 85,
+            "protein": 2,
+            "carbs": 5.5,
+            "fat": 6.5,
+            "fiber": 1.5
+          }
+        },
+        {
+          "key": "vegetables.tomato",
+          "name": "Tomato",
+          "amount": "0.33x 1 medium",
+          "nutrition": {
+            "calories": 7.260000000000001,
+            "protein": 0.36300000000000004,
+            "carbs": 1.584,
+            "fat": 0.066,
+            "fiber": 0.46199999999999997
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 202,
+        "protein": 6.4,
+        "carbs": 28.1,
+        "fat": 8.6,
+        "fiber": 5
+      }
     }
   },
   "ingredients_database": {
