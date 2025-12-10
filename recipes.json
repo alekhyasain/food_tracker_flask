@@ -1951,6 +1951,80 @@
         "fat": 33.4,
         "fiber": 9.2
       }
+    },
+    "idli": {
+      "name": "idli",
+      "category": "rice",
+      "servings": 36,
+      "ingredients": [
+        {
+          "key": "grains.white_rice",
+          "name": "White Rice",
+          "amount": "0.8x 1 cup uncooked",
+          "nutrition": {
+            "calories": 560.8000000000001,
+            "protein": 10.32,
+            "carbs": 123.75999999999999,
+            "fat": 0.8800000000000001,
+            "fiber": 3.12
+          }
+        },
+        {
+          "key": "grains.boiled_white_rice",
+          "name": "Boiled white rice",
+          "amount": "3x 1 cup uncooked",
+          "nutrition": {
+            "calories": 2097,
+            "protein": 45.599999999999994,
+            "carbs": 451.20000000000005,
+            "fat": 5.699999999999999,
+            "fiber": 12.299999999999999
+          }
+        },
+        {
+          "key": "dals_legumes.urad_dal",
+          "name": "Urad dal",
+          "amount": "0.8x 1 cup uncooked",
+          "nutrition": {
+            "calories": 540,
+            "protein": 39.6,
+            "carbs": 96,
+            "fat": 0,
+            "fiber": 46.800000000000004
+          }
+        },
+        {
+          "key": "dals_legumes.methi_seeds",
+          "name": "Methi Seeds",
+          "amount": "1x 1 tbsp",
+          "nutrition": {
+            "calories": 36,
+            "protein": 3,
+            "carbs": 6,
+            "fat": 1,
+            "fiber": 3
+          }
+        },
+        {
+          "key": "oils_fats.olive_oil",
+          "name": "Olive oil",
+          "amount": "12x 1 tsp",
+          "nutrition": {
+            "calories": 480,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 54,
+            "fiber": 0
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 103,
+        "protein": 2.7,
+        "carbs": 18.8,
+        "fat": 1.7,
+        "fiber": 1.8
+      }
     }
   },
   "ingredients_database": {
