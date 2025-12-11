@@ -2259,6 +2259,80 @@
         "fat": 8.6,
         "fiber": 5.4
       }
+    },
+    "coriander_chutney": {
+      "name": "Coriander Chutney",
+      "category": "sabji",
+      "servings": 6,
+      "ingredients": [
+        {
+          "key": "vegetables.coriander",
+          "name": "Coriander",
+          "amount": "2x 1 bunch",
+          "nutrition": {
+            "calories": 50,
+            "protein": 6,
+            "carbs": 10,
+            "fat": 3,
+            "fiber": 8
+          }
+        },
+        {
+          "key": "vegetables.tomato",
+          "name": "Tomato",
+          "amount": "2x 1 medium",
+          "nutrition": {
+            "calories": 44,
+            "protein": 2.2,
+            "carbs": 9.6,
+            "fat": 0.4,
+            "fiber": 2.8
+          }
+        },
+        {
+          "key": "vegetables.onion",
+          "name": "Onion",
+          "amount": "1x 1 medium",
+          "nutrition": {
+            "calories": 44,
+            "protein": 1.2,
+            "carbs": 10,
+            "fat": 0.1,
+            "fiber": 1.9
+          }
+        },
+        {
+          "key": "oils_fats.olive_oil",
+          "name": "Olive oil",
+          "amount": "2x 1 tsp",
+          "nutrition": {
+            "calories": 80,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 9,
+            "fiber": 0
+          }
+        },
+        {
+          "key": "other.tamarind_paste",
+          "name": "Tamarind Paste",
+          "amount": "1x 1 tbsp",
+          "nutrition": {
+            "calories": 28,
+            "protein": 0.3,
+            "carbs": 7.5,
+            "fat": 0.1,
+            "fiber": 0.7
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 41,
+        "protein": 1.6,
+        "carbs": 6.2,
+        "fat": 2.1,
+        "fiber": 2.2
+      }
     }
   },
   "ingredients_database": {
