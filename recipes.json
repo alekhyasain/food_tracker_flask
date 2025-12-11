@@ -2333,6 +2333,56 @@
         "fat": 2.1,
         "fiber": 2.2
       }
+    },
+    "lunch_quinoa-rice_with_dahi": {
+      "name": "Lunch quinoa-rice with dahi",
+      "category": "other",
+      "servings": 1,
+      "ingredients": [
+        {
+          "key": "grains.quinoa",
+          "name": "Quinoa",
+          "amount": "0.125x 1 cup uncooked",
+          "nutrition": {
+            "calories": 78.25,
+            "protein": 3,
+            "carbs": 13.6375,
+            "fat": 1.2875,
+            "fiber": 1.4875
+          }
+        },
+        {
+          "key": "grains.white_rice",
+          "name": "White Rice",
+          "amount": "0.0625x 1 cup uncooked",
+          "nutrition": {
+            "calories": 43.8125,
+            "protein": 0.80625,
+            "carbs": 9.66875,
+            "fat": 0.06875,
+            "fiber": 0.24375
+          }
+        },
+        {
+          "key": "other.low_fat_dahi",
+          "name": "Low fat dahi",
+          "amount": "0.33x 1 cup",
+          "nutrition": {
+            "calories": 36.300000000000004,
+            "protein": 2.64,
+            "carbs": 3.6300000000000003,
+            "fat": 1.32,
+            "fiber": 0
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 158,
+        "protein": 6.4,
+        "carbs": 26.9,
+        "fat": 2.7,
+        "fiber": 1.7
+      }
     }
   },
   "ingredients_database": {
