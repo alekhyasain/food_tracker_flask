@@ -2427,6 +2427,21 @@
       "source": "custom",
       "mealType": "Dessert",
       "date": "2025-12-10"
+    },
+    {
+      "id": 1765492787457,
+      "description": "Mini pecan pie",
+      "timestamp": "2025-12-10T22:39:47.000Z",
+      "nutrition": {
+        "calories": 114,
+        "protein": 4,
+        "carbs": 16,
+        "fat": 4,
+        "fiber": 2
+      },
+      "source": "custom",
+      "mealType": "Dessert",
+      "date": "2025-12-10"
     }
   ]
 }
