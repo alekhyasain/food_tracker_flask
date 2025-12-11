@@ -585,6 +585,18 @@
             "fiber": 2
           }
         }
+      },
+      "coriander": {
+        "name": "Coriander",
+        "measurements": {
+          "1_bunch": {
+            "calories": 25,
+            "protein": 3,
+            "carbs": 5,
+            "fat": 1.5,
+            "fiber": 4
+          }
+        }
       }
     },
     "spices_seasonings": {
