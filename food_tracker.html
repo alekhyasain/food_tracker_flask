@@ -1028,14 +1028,25 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Dish Description:</label>
                                 <input type="text" id="modalCustomDish" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="e.g., Homemade rajma with 2 chapatis">
                             </div>
-                            <div class="grid grid-cols-2 gap-4">
+                            <div class="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Servings:</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Meal Type:</label>
+                                    <select id="modalCustomMealType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white text-gray-800">
+                                        <option value="Breakfast">🌅 Breakfast</option>
+                                        <option value="Morning Snack">🥨 Morning Snack</option>
+                                        <option value="Lunch" selected>🍽️ Lunch</option>
+                                        <option value="Evening Snack">🍪 Evening Snack</option>
+                                        <option value="Dinner">🌙 Dinner</option>
+                                        <option value="Dessert">🍰 Dessert</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Serving Size:</label>
                                     <input type="number" id="modalCustomServings" value="1" min="0.5" step="0.5" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Calories (optional):</label>
-                                    <input type="number" id="modalCustomCalories" placeholder="Auto-calc" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Calories per Serving:</label>
+                                    <input type="number" id="modalCustomCalories" placeholder="Required" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" min="0">
                                 </div>
                             </div>
                             <button onclick="addCustomEntryFromModal()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
@@ -7420,26 +7431,35 @@
 
         function addCustomEntryFromModal() {
             const description = document.getElementById('modalCustomDish').value.trim();
+            const mealType = document.getElementById('modalCustomMealType').value;
             const servings = parseFloat(document.getElementById('modalCustomServings').value);
-            const calories = parseInt(document.getElementById('modalCustomCalories').value) || estimateCalories(description);
+            const caloriesPerServing = parseInt(document.getElementById('modalCustomCalories').value);
             
             if (!description) {
                 alert('Please enter a dish description');
                 return;
             }
+
+            if (!caloriesPerServing || caloriesPerServing <= 0) {
+                alert('Please enter the calories per serving');
+                return;
+            }
+            
+            const totalCalories = Math.round(caloriesPerServing * servings);
             
             const meal = {
                 id: Date.now(),
                 description: description,
                 timestamp: new Date().toISOString(),
                 nutrition: {
-                    calories: Math.round(calories * servings),
-                    protein: Math.round(calories * 0.15 / 4), // Rough estimate
-                    carbs: Math.round(calories * 0.55 / 4),
-                    fat: Math.round(calories * 0.30 / 9),
-                    fiber: Math.round(calories * 0.02)
+                    calories: totalCalories,
+                    protein: Math.round(totalCalories * 0.15 / 4), // Rough estimate
+                    carbs: Math.round(totalCalories * 0.55 / 4),
+                    fat: Math.round(totalCalories * 0.30 / 9),
+                    fiber: Math.round(totalCalories * 0.02)
                 },
-                source: 'custom'
+                source: 'custom',
+                mealType: mealType
             };
             
             addMealToDate(meal);
@@ -7450,10 +7470,11 @@
             
             // Clear form
             document.getElementById('modalCustomDish').value = '';
+            document.getElementById('modalCustomMealType').value = 'Lunch';
             document.getElementById('modalCustomServings').value = 1;
             document.getElementById('modalCustomCalories').value = '';
             
-            showSuccessMessage('Added custom entry!');
+            showSuccessMessage(`Added custom entry to ${mealType}!`);
         }
 
         // Functions to open existing modals from unified modal
