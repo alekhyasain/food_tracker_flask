@@ -2785,6 +2785,21 @@
       "source": "custom",
       "mealType": "Dinner",
       "date": "2025-12-12"
+    },
+    {
+      "id": 1765736654609,
+      "description": "Sambar and Chutney",
+      "timestamp": "2025-12-12T18:24:14.000Z",
+      "nutrition": {
+        "calories": 100,
+        "protein": 4,
+        "carbs": 14,
+        "fat": 3,
+        "fiber": 2
+      },
+      "source": "custom",
+      "mealType": "Dinner",
+      "date": "2025-12-12"
     }
   ]
 }
