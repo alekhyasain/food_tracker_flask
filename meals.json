@@ -2801,5 +2801,22 @@
       "mealType": "Dinner",
       "date": "2025-12-12"
     }
+  ],
+  "2025-12-13": [
+    {
+      "id": 1765739940477,
+      "description": "Sevia Upma (0.8 servings)",
+      "timestamp": "2025-12-13T19:19:00.000Z",
+      "nutrition": {
+        "calories": 162,
+        "protein": 3.4,
+        "carbs": 17.8,
+        "fat": 7.4,
+        "fiber": 1.6
+      },
+      "source": "database",
+      "mealType": "Breakfast",
+      "date": "2025-12-13"
+    }
   ]
 }
