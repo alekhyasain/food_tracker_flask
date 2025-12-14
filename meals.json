@@ -3218,6 +3218,42 @@
       "source": "database",
       "mealType": "Lunch",
       "date": "2025-12-14"
+    },
+    {
+      "id": 1765755706929,
+      "description": "Uncooked roti frozen (1.8x 1 roti)",
+      "timestamp": "2025-12-14T23:41:46.000Z",
+      "nutrition": {
+        "calories": 270,
+        "protein": 7.2,
+        "carbs": 39.6,
+        "fat": 9,
+        "fiber": 5.4
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Lunch",
+      "ingredient_data": {
+        "category": "grains",
+        "key": "uncooked_roti_frozen",
+        "measurement": "1_roti",
+        "quantity": 1.8
+      },
+      "date": "2025-12-14"
+    },
+    {
+      "id": 1765755718854,
+      "description": "Unsweetened oat milk coffee (1 serving)",
+      "timestamp": "2025-12-14T23:41:58.000Z",
+      "nutrition": {
+        "calories": 41,
+        "protein": 0.5,
+        "carbs": 6.4,
+        "fat": 1,
+        "fiber": 0.3
+      },
+      "source": "database",
+      "mealType": "Morning Snack",
+      "date": "2025-12-14"
     }
   ]
 }
