@@ -2904,6 +2904,21 @@
       "source": "database",
       "mealType": "Lunch",
       "date": "2025-12-13"
+    },
+    {
+      "id": 1765740353886,
+      "description": "Beans Carrot Vepudu (0.7 servings)",
+      "timestamp": "2025-12-13T19:25:53.000Z",
+      "nutrition": {
+        "calories": 69,
+        "protein": 2,
+        "carbs": 8.5,
+        "fat": 3.2,
+        "fiber": 3.7
+      },
+      "source": "database",
+      "mealType": "Lunch",
+      "date": "2025-12-13"
     }
   ]
 }
