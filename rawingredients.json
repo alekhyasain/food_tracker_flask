@@ -170,6 +170,18 @@
             "fiber": 4
           }
         }
+      },
+      "uncooked_roti_frozen": {
+        "name": "Uncooked roti frozen",
+        "measurements": {
+          "1_roti": {
+            "calories": 150,
+            "protein": 4,
+            "carbs": 22,
+            "fat": 5,
+            "fiber": 3
+          }
+        }
       }
     },
     "dals_legumes": {
