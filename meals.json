@@ -2770,6 +2770,21 @@
       "source": "database",
       "mealType": "Evening Snack",
       "date": "2025-12-12"
+    },
+    {
+      "id": 1765736644426,
+      "description": "Restaurant Kandi Podi Idli",
+      "timestamp": "2025-12-12T18:24:04.000Z",
+      "nutrition": {
+        "calories": 700,
+        "protein": 26,
+        "carbs": 96,
+        "fat": 23,
+        "fiber": 14
+      },
+      "source": "custom",
+      "mealType": "Dinner",
+      "date": "2025-12-12"
     }
   ]
 }
