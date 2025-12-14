@@ -597,6 +597,18 @@
             "fiber": 4
           }
         }
+      },
+      "cut_carrot_and_beans": {
+        "name": "Cut carrot and beans",
+        "measurements": {
+          "1_box": {
+            "calories": 220,
+            "protein": 8,
+            "carbs": 45,
+            "fat": 2,
+            "fiber": 20
+          }
+        }
       }
     },
     "spices_seasonings": {
