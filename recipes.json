@@ -2643,6 +2643,80 @@
         "fat": 3.5,
         "fiber": 1.5
       }
+    },
+    "whole_grain_rava_upma": {
+      "name": "Whole grain rava upma",
+      "category": "other",
+      "servings": 2,
+      "ingredients": [
+        {
+          "key": "grains.roasted_upma_rava_mix_whole_grain",
+          "name": "Roasted upma rava mix whole grain",
+          "amount": "0.82x 1 cup",
+          "nutrition": {
+            "calories": 393.59999999999997,
+            "protein": 9.84,
+            "carbs": 88.55999999999999,
+            "fat": 0,
+            "fiber": 3.28
+          }
+        },
+        {
+          "key": "vegetables.onion",
+          "name": "Onion",
+          "amount": "1x 1 medium",
+          "nutrition": {
+            "calories": 44,
+            "protein": 1.2,
+            "carbs": 10,
+            "fat": 0.1,
+            "fiber": 1.9
+          }
+        },
+        {
+          "key": "oils_fats.olive_oil",
+          "name": "Olive oil",
+          "amount": "2x 1 tsp",
+          "nutrition": {
+            "calories": 80,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 9,
+            "fiber": 0
+          }
+        },
+        {
+          "key": "oils_fats.cashews",
+          "name": "Cashews",
+          "amount": "6x 1 piece",
+          "nutrition": {
+            "calories": 60,
+            "protein": 1.5,
+            "carbs": 3,
+            "fat": 3.5999999999999996,
+            "fiber": 0
+          }
+        },
+        {
+          "key": "oils_fats.peanuts",
+          "name": "Peanuts",
+          "amount": "1x 1 tbsp",
+          "nutrition": {
+            "calories": 54,
+            "protein": 2,
+            "carbs": 2,
+            "fat": 5,
+            "fiber": 1
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 316,
+        "protein": 7.3,
+        "carbs": 51.8,
+        "fat": 8.9,
+        "fiber": 3.1
+      }
     }
   },
   "ingredients_database": {
