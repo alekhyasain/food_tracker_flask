@@ -2433,6 +2433,56 @@
         "fat": 4.1,
         "fiber": 1.8
       }
+    },
+    "beans_carrot_vepudu": {
+      "name": "Beans Carrot Vepudu",
+      "category": "sabji",
+      "servings": 4,
+      "ingredients": [
+        {
+          "key": "vegetables.cut_carrot_and_beans",
+          "name": "Cut carrot and beans",
+          "amount": "1x 1 box",
+          "nutrition": {
+            "calories": 220,
+            "protein": 8,
+            "carbs": 45,
+            "fat": 2,
+            "fiber": 20
+          }
+        },
+        {
+          "key": "spices_seasonings.pappula_podi",
+          "name": "Pappula podi",
+          "amount": "2x 1 tbsp",
+          "nutrition": {
+            "calories": 91.18,
+            "protein": 3.5,
+            "carbs": 3.56,
+            "fat": 7.56,
+            "fiber": 1.34
+          }
+        },
+        {
+          "key": "oils_fats.olive_oil",
+          "name": "Olive oil",
+          "amount": "2x 1 tsp",
+          "nutrition": {
+            "calories": 80,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 9,
+            "fiber": 0
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 98,
+        "protein": 2.9,
+        "carbs": 12.1,
+        "fat": 4.6,
+        "fiber": 5.3
+      }
     }
   },
   "ingredients_database": {
