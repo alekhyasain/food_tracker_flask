@@ -900,6 +900,18 @@
             "fiber": 3
           }
         }
+      },
+      "cocoa_powder_unsweetned": {
+        "name": "Cocoa powder unsweetned",
+        "measurements": {
+          "1_tbsp": {
+            "calories": 12,
+            "protein": 1,
+            "carbs": 3,
+            "fat": 0.7,
+            "fiber": 2
+          }
+        }
       }
     },
     "oils_fats": {
