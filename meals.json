@@ -3365,6 +3365,21 @@
       "source": "database",
       "mealType": "Dinner",
       "date": "2025-12-14"
+    },
+    {
+      "id": 1765778301225,
+      "description": "Yogurtland chocolate icrecream with oreo and cake",
+      "timestamp": "2025-12-14T05:58:21.000Z",
+      "nutrition": {
+        "calories": 200,
+        "protein": 8,
+        "carbs": 28,
+        "fat": 7,
+        "fiber": 4
+      },
+      "source": "custom",
+      "mealType": "Dessert",
+      "date": "2025-12-14"
     }
   ]
 }
