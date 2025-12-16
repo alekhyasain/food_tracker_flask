@@ -3402,5 +3402,43 @@
       },
       "date": "2025-12-14"
     }
+  ],
+  "2025-12-15": [
+    {
+      "id": 1765847399916,
+      "description": "Costco roasted mixed nuts (1x 1 tbsp)",
+      "timestamp": "2025-12-15T01:09:59.000Z",
+      "nutrition": {
+        "calories": 45,
+        "protein": 1.3,
+        "carbs": 1.8,
+        "fat": 4,
+        "fiber": 0.5
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Morning Snack",
+      "ingredient_data": {
+        "category": "other",
+        "key": "costco_roasted_mixed_nuts",
+        "measurement": "1_tbsp",
+        "quantity": 1
+      },
+      "date": "2025-12-15"
+    },
+    {
+      "id": 1765847405012,
+      "description": "Dosa (1 serving)",
+      "timestamp": "2025-12-15T01:10:05.000Z",
+      "nutrition": {
+        "calories": 210,
+        "protein": 5.6,
+        "carbs": 39.3,
+        "fat": 2.9,
+        "fiber": 3.7
+      },
+      "source": "database",
+      "mealType": "Morning Snack",
+      "date": "2025-12-15"
+    }
   ]
 }
