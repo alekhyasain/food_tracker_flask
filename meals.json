@@ -3580,6 +3580,21 @@
       "source": "custom",
       "mealType": "Evening Snack",
       "date": "2025-12-15"
+    },
+    {
+      "id": 1765847564130,
+      "description": "Roasted Kala Chana (1 serving)",
+      "timestamp": "2025-12-15T01:12:44.000Z",
+      "nutrition": {
+        "calories": 197,
+        "protein": 9.7,
+        "carbs": 30.8,
+        "fat": 4.5,
+        "fiber": 8.7
+      },
+      "source": "database",
+      "mealType": "Evening Snack",
+      "date": "2025-12-15"
     }
   ]
 }
