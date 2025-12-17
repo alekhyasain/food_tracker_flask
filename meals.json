@@ -3714,6 +3714,21 @@
       "source": "database",
       "mealType": "Morning Snack",
       "date": "2025-12-16"
+    },
+    {
+      "id": 1765997785790,
+      "description": "Rajma with corn",
+      "timestamp": "2025-12-16T18:56:25.000Z",
+      "nutrition": {
+        "calories": 250,
+        "protein": 9,
+        "carbs": 34,
+        "fat": 8,
+        "fiber": 5
+      },
+      "source": "custom",
+      "mealType": "Lunch",
+      "date": "2025-12-16"
     }
   ]
 }
