@@ -1577,6 +1577,18 @@
             "fiber": 2
           }
         }
+      },
+      "egg_white": {
+        "name": "Egg white",
+        "measurements": {
+          "1": {
+            "calories": 17,
+            "protein": 3.6,
+            "carbs": 0,
+            "fat": 0,
+            "fiber": 0
+          }
+        }
       }
     }
   }
