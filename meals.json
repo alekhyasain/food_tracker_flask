@@ -4213,6 +4213,21 @@
       "source": "database",
       "mealType": "Breakfast",
       "date": "2025-12-18"
+    },
+    {
+      "id": 1766086820874,
+      "description": "Apple chia pudding no peanut butter (1 serving)",
+      "timestamp": "2025-12-18T19:40:20.000Z",
+      "nutrition": {
+        "calories": 175,
+        "protein": 6.4,
+        "carbs": 28.1,
+        "fat": 5.2,
+        "fiber": 5.8
+      },
+      "source": "database",
+      "mealType": "Morning Snack",
+      "date": "2025-12-18"
     }
   ]
 }
