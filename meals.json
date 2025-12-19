@@ -4112,6 +4112,21 @@
       "source": "database",
       "mealType": "Dinner",
       "date": "2025-12-17"
+    },
+    {
+      "id": 1766184433484,
+      "description": "Raita (1 serving)",
+      "timestamp": "2025-12-17T22:47:13.000Z",
+      "nutrition": {
+        "calories": 62,
+        "protein": 4.3,
+        "carbs": 6.9,
+        "fat": 2.1,
+        "fiber": 0.4
+      },
+      "source": "database",
+      "mealType": "Dinner",
+      "date": "2025-12-17"
     }
   ],
   "2025-12-18": [
