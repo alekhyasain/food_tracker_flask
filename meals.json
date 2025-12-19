@@ -4563,6 +4563,21 @@
       "source": "database",
       "mealType": "Lunch",
       "date": "2025-12-19"
+    },
+    {
+      "id": 1766184232557,
+      "description": "Dondakaya Sabji (0.8 servings)",
+      "timestamp": "2025-12-19T22:43:52.000Z",
+      "nutrition": {
+        "calories": 63,
+        "protein": 2.3,
+        "carbs": 5.6,
+        "fat": 3.6,
+        "fiber": 2.5
+      },
+      "source": "database",
+      "mealType": "Lunch",
+      "date": "2025-12-19"
     }
   ]
 }
