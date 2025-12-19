@@ -1092,48 +1092,73 @@ app.post('/api/export-excel', async (req, res) => {
         }
         
         console.log('📊 EXPORT_SERVER: Creating separate sheets per date...');
-        
-        // Create sheets for each individual date
+
+        // Generate list of ALL dates including missing ones
         const sortedDates = dates.sort();
+        let allDatesToProcess = [];
+
+        if (sortedDates.length > 0) {
+            const firstDate = new Date(sortedDates[0] + 'T00:00:00');
+            const lastDate = new Date(sortedDates[sortedDates.length - 1] + 'T00:00:00');
+
+            // Fill in all dates between first and last
+            const currentDate = new Date(firstDate);
+            while (currentDate <= lastDate) {
+                const dateKey = currentDate.toISOString().split('T')[0];
+                allDatesToProcess.push(dateKey);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        } else {
+            // No meals data at all
+            allDatesToProcess = [];
+        }
+
         let totalMealsProcessed = 0;
-        let duplicateDatesSkipped = [];
-        
-        console.log('📅 EXPORT_SERVER: Processing individual dates:', {
-            totalDates: sortedDates.length,
-            dateRange: sortedDates.length > 0 ? `${sortedDates[0]} to ${sortedDates[sortedDates.length - 1]}` : 'none',
-            sampleDates: sortedDates.slice(0, 5)
+        let mealsAppended = 0;
+        let newSheetsCreated = 0;
+        let missingSheetsAdded = 0;
+
+        console.log('📅 EXPORT_SERVER: Processing all dates (including missing):', {
+            totalDates: allDatesToProcess.length,
+            dateRange: allDatesToProcess.length > 0 ? `${allDatesToProcess[0]} to ${allDatesToProcess[allDatesToProcess.length - 1]}` : 'none',
+            datesWithMeals: sortedDates.length,
+            sampleDates: allDatesToProcess.slice(0, 5)
         });
-        
-        sortedDates.forEach(dateKey => {
-            const meals = mealsByDate[dateKey];
-            if (!meals || meals.length === 0) return;
-            
+
+        allDatesToProcess.forEach(dateKey => {
+            try {
+                const meals = mealsByDate[dateKey] || [];
+                const hasMeals = meals.length > 0;
+
             const date = new Date(dateKey + 'T00:00:00');
             const sheetName = dateKey; // Use YYYY-MM-DD format as sheet name
-            
+
             console.log('📄 EXPORT_SERVER: Processing date sheet:', {
                 dateKey,
                 sheetName,
                 mealCount: meals.length,
+                hasMeals,
                 fileExistedAtStart
             });
-            
+
             // Check if worksheet already exists when appending
             let worksheet = fileExistedAtStart ? workbook.getWorksheet(sheetName) : null;
-            let isDuplicateDate = false;
-            
+
             if (worksheet) {
-                // Sheet already exists - this is a duplicate date
-                isDuplicateDate = true;
-                duplicateDatesSkipped.push(dateKey);
-                console.log('⚠️ DUPLICATE_CHECK: Sheet already exists for date:', dateKey, '- skipping to prevent duplication');
-                return;
+                // Sheet already exists - remove it completely and recreate
+                console.log('📝 APPEND_MODE: Sheet exists for date:', dateKey, '- removing and recreating');
+                workbook.removeWorksheet(worksheet.id);
+                worksheet = null;
             }
-            
+
             // Create new worksheet for this date
             worksheet = workbook.addWorksheet(sheetName);
-            
-            // Set column widths
+            newSheetsCreated++;
+            if (!hasMeals) {
+                missingSheetsAdded++;
+            }
+
+            // Set up worksheet structure
             worksheet.columns = [
                 { header: 'Time', key: 'time', width: 10 },
                 { header: 'Meal Type', key: 'mealType', width: 15 },
@@ -1146,7 +1171,7 @@ app.post('/api/export-excel', async (req, res) => {
                 { header: 'Source', key: 'source', width: 15 },
                 { header: 'Ingredients', key: 'ingredients', width: 50 }
             ];
-            
+
             // Style the header row
             const headerRow = worksheet.getRow(1);
             headerRow.font = { bold: true, color: { argb: 'FFFFFF' } };
@@ -1157,7 +1182,7 @@ app.post('/api/export-excel', async (req, res) => {
             };
             headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
             headerRow.height = 25;
-            
+
             // Add date header row
             const dateHeaderRow = worksheet.addRow({
                 time: '',
@@ -1176,67 +1201,70 @@ app.post('/api/export-excel', async (req, res) => {
                 source: '',
                 ingredients: ''
             });
-            
+
             dateHeaderRow.font = { bold: true, size: 14 };
             dateHeaderRow.fill = {
                 type: 'pattern',
                 pattern: 'solid',
                 fgColor: { argb: 'F2F2F2' }
             };
-            
+
             // Add empty row for spacing
             worksheet.addRow({});
-            
+
+            // Initialize day totals
             let dayTotals = { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0 };
-            
+
             // Add meals for this day
-            meals.forEach((meal, mealIndex) => {
-                const mealTime = new Date(meal.timestamp).toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                });
-                
-                // Format ingredients list - handle both array and string formats
-                let ingredientsList = '';
-                if (meal.ingredients) {
-                    if (Array.isArray(meal.ingredients) && meal.ingredients.length > 0) {
-                        // Handle array format (expected format)
-                        ingredientsList = meal.ingredients.map(ing =>
-                            `${ing.name} (${ing.quantity}x ${ing.measurement})`
-                        ).join('; ');
-                    } else if (typeof meal.ingredients === 'string' && meal.ingredients.trim()) {
-                        // Handle string format (fallback for compatibility)
-                        ingredientsList = meal.ingredients.trim();
+            if (hasMeals) {
+                meals.forEach((meal, mealIndex) => {
+                    const mealTime = new Date(meal.timestamp).toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    });
+
+                    // Format ingredients list - handle both array and string formats
+                    let ingredientsList = '';
+                    if (meal.ingredients) {
+                        if (Array.isArray(meal.ingredients) && meal.ingredients.length > 0) {
+                            ingredientsList = meal.ingredients.map(ing =>
+                                `${ing.name} (${ing.quantity}x ${ing.measurement})`
+                            ).join('; ');
+                        } else if (typeof meal.ingredients === 'string' && meal.ingredients.trim()) {
+                            ingredientsList = meal.ingredients.trim();
+                        }
                     }
-                }
-                
-                const row = worksheet.addRow({
-                    time: mealTime,
-                    mealType: meal.mealType || 'Lunch',
-                    description: meal.description,
-                    calories: meal.nutrition.calories,
-                    protein: meal.nutrition.protein,
-                    carbs: meal.nutrition.carbs,
-                    fat: meal.nutrition.fat,
-                    fiber: meal.nutrition.fiber,
-                    source: meal.source === 'database' ? 'Database' :
-                           meal.source === 'ingredients' ? 'Custom Recipe' : 'Manual Entry',
-                    ingredients: ingredientsList
+
+                    const row = worksheet.addRow({
+                        time: mealTime,
+                        mealType: meal.mealType || 'Lunch',
+                        description: meal.description,
+                        calories: meal.nutrition.calories,
+                        protein: meal.nutrition.protein,
+                        carbs: meal.nutrition.carbs,
+                        fat: meal.nutrition.fat,
+                        fiber: meal.nutrition.fiber,
+                        source: meal.source === 'database' ? 'Database' :
+                               meal.source === 'ingredients' ? 'Custom Recipe' : 'Manual Entry',
+                        ingredients: ingredientsList
+                    });
+
+                    // Style data rows
+                    row.alignment = { vertical: 'top', wrapText: true };
+                    row.height = Math.max(20, Math.ceil(ingredientsList.length / 50) * 15);
+
+                    // Add to day totals
+                    dayTotals.calories += meal.nutrition.calories;
+                    dayTotals.protein += meal.nutrition.protein;
+                    dayTotals.carbs += meal.nutrition.carbs;
+                    dayTotals.fat += meal.nutrition.fat;
+                    dayTotals.fiber += meal.nutrition.fiber;
                 });
-                
-                // Style data rows
-                row.alignment = { vertical: 'top', wrapText: true };
-                row.height = Math.max(20, Math.ceil(ingredientsList.length / 50) * 15);
-                
-                // Add to day totals
-                dayTotals.calories += meal.nutrition.calories;
-                dayTotals.protein += meal.nutrition.protein;
-                dayTotals.carbs += meal.nutrition.carbs;
-                dayTotals.fat += meal.nutrition.fat;
-                dayTotals.fiber += meal.nutrition.fiber;
-            });
-            
+
+                mealsAppended += meals.length;
+            }
+
             // Add day summary row
             worksheet.addRow({});
             const summaryRow = worksheet.addRow({
@@ -1251,7 +1279,7 @@ app.post('/api/export-excel', async (req, res) => {
                 source: 'SUMMARY',
                 ingredients: ''
             });
-            
+
             // Style summary row
             summaryRow.font = { bold: true };
             summaryRow.fill = {
@@ -1260,7 +1288,7 @@ app.post('/api/export-excel', async (req, res) => {
                 fgColor: { argb: '4472C4' }
             };
             summaryRow.font.color = { argb: 'FFFFFF' };
-            
+
             // Add borders to all cells
             worksheet.eachRow((row, rowNumber) => {
                 row.eachCell((cell, colNumber) => {
@@ -1272,55 +1300,63 @@ app.post('/api/export-excel', async (req, res) => {
                     };
                 });
             });
-            
+
             // Freeze the header row
             worksheet.views = [{ state: 'frozen', ySplit: 1 }];
-            
+
             totalMealsProcessed += meals.length;
+            } catch (dateError) {
+                console.error('❌ EXPORT_DATE_ERROR: Error processing date sheet:', {
+                    dateKey,
+                    error: dateError.message,
+                    stack: dateError.stack
+                });
+                // Continue with other dates even if one fails
+            }
         });
-        
+
         // If no data found, create a summary sheet
-        if (sortedDates.length === 0) {
+        if (allDatesToProcess.length === 0) {
             const worksheet = workbook.addWorksheet('No Data');
             worksheet.addRow(['No meal data found for the selected date range.']);
             worksheet.getCell('A1').font = { bold: true, size: 14 };
         }
-        
+
         console.log('✅ EXPORT_SERVER: Date sheets created:', {
-            totalDatesProcessed: sortedDates.length,
-            totalMealsProcessed,
-            duplicateDatesSkipped: duplicateDatesSkipped.length,
-            skippedDates: duplicateDatesSkipped
+            totalDatesProcessed: allDatesToProcess.length,
+            datesWithMeals: sortedDates.length,
+            datesWithoutMeals: missingSheetsAdded,
+            totalMealsProcessed
         });
-        
+
         console.log('✅ EXPORT_SERVER: Excel workbook created successfully');
-        
+
         console.log('💾 EXPORT_SERVER: Saving file to trackers folder:', {
             filename: exportFilename,
             filePath: filePath,
             fileExistedAtStart: fileExistedAtStart,
-            totalSheets: sortedDates.length - duplicateDatesSkipped.length
+            totalSheets: allDatesToProcess.length
         });
-        
+
         // Save workbook to trackers folder
         await workbook.xlsx.writeFile(filePath);
-        
+
         console.log('✅ EXPORT_SERVER: Excel file saved successfully:', filePath);
-        
+
         // Send success response instead of file download
         res.json({
             success: true,
             message: fileExistedAtStart ?
-                `Data appended to existing file: ${exportFilename}` :
-                `New file created: ${exportFilename}`,
+                `Data updated in existing file: ${exportFilename} (${totalMealsProcessed} meals across ${allDatesToProcess.length} dates)` :
+                `New file created: ${exportFilename} (${totalMealsProcessed} meals across ${allDatesToProcess.length} dates)`,
             filename: exportFilename,
             filePath: `trackers/${exportFilename}`,
             fileExists: fileExistedAtStart,
             isNewFileCreation: isNewFileCreation,
-            totalSheets: sortedDates.length - duplicateDatesSkipped.length,
+            totalSheets: allDatesToProcess.length,
             totalMeals: totalMealsProcessed,
-            duplicateDatesSkipped: duplicateDatesSkipped.length,
-            skippedDates: duplicateDatesSkipped
+            datesWithMeals: sortedDates.length,
+            datesWithoutMeals: missingSheetsAdded
         });
         
     } catch (error) {

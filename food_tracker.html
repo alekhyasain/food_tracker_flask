@@ -344,6 +344,24 @@
                 <!-- Recipe Details -->
                 <div>
                     <div class="space-y-4">
+                        <!-- Start from Template Section -->
+                        <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                            <h5 class="font-semibold text-gray-800 mb-3">📋 Start with a Base Recipe (Optional)</h5>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Choose a base recipe:</label>
+                                    <select id="recipeTemplateSelect" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" onchange="loadRecipeTemplate()">
+                                        <option value="">-- Select a recipe --</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">How many servings?</label>
+                                    <input type="number" id="recipeTemplateServings" value="1" min="0.25" step="0.25" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" onchange="loadRecipeTemplate()">
+                                </div>
+                                <p class="text-xs text-gray-600">💡 Example: Select "Dosa" + 1 serving, then add butter, chutney, etc. Save as "Dosa with Butter" for quick access!</p>
+                            </div>
+                        </div>
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Recipe Name:</label>
                             <input type="text" id="recipeName" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., My Special Dal">
@@ -1170,32 +1188,6 @@
                                         Click "Reload" to load ingredients
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Recipe Editor Access Section -->
-                    <div class="mt-4 pt-4 border-t border-gray-200">
-                        <h4 class="text-lg font-semibold mb-3 text-gray-800">🍳 Recipe Editor Access</h4>
-                        <p class="text-sm text-gray-600 mb-3">Quickly access recipe editing while managing ingredients</p>
-                        
-                        <div class="space-y-3">
-                            <!-- Recipe Selection -->
-                            <div>
-                                <label for="recipeSelector" class="block text-sm font-medium text-gray-700 mb-1">Select Recipe to Edit:</label>
-                                <select id="recipeSelector" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="">-- Choose a recipe --</option>
-                                </select>
-                            </div>
-                            
-                            <!-- Action Buttons -->
-                            <div class="flex gap-2">
-                                <button id="editSelectedRecipeBtn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
-                                    📝 Edit Selected Recipe
-                                </button>
-                                <button id="createNewRecipeBtn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                                    ➕ Create New Recipe
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -4507,6 +4499,8 @@
                 updateRecipePreview();
                 // Ensure ingredient select is populated with loaded data
                 populateIngredientSelect();
+                // Populate template dropdown with existing recipes
+                populateRecipeTemplateDropdown();
                 showSuccessMessage('✅ Recipe builder ready!');
             }).catch(error => {
                 console.error('❌ RECIPE: Failed to load ingredients:', error);
@@ -4520,6 +4514,11 @@
             document.getElementById('recipeName').value = '';
             document.getElementById('recipeServings').value = 4;
             currentRecipeIngredients = [];
+            // Reset template dropdown
+            const templateSelect = document.getElementById('recipeTemplateSelect');
+            if (templateSelect) templateSelect.value = '';
+            const templateServings = document.getElementById('recipeTemplateServings');
+            if (templateServings) templateServings.value = 1;
             // Reset modal to create mode
             resetRecipeBuilderModal();
         }
@@ -4728,6 +4727,157 @@
                 console.error('❌ EDIT: Failed to load ingredients:', error);
                 showErrorMessage('Failed to load ingredients: ' + error.message);
             });
+        }
+
+        // Create Recipe from Template Function
+        function createFromRecipe(key) {
+            console.log('📋 TEMPLATE: createFromRecipe() called for key:', key);
+
+            // Check if the recipe exists in customRecipes
+            if (!customRecipes[key]) {
+                showErrorMessage('Recipe not found: ' + key);
+                return;
+            }
+
+            const recipe = customRecipes[key];
+            console.log('📋 TEMPLATE: Found recipe:', recipe.name);
+
+            // Ensure databases are loaded before opening recipe builder
+            loadDatabases().then(() => {
+                console.log('✅ TEMPLATE: Databases loaded, opening recipe builder in template mode');
+
+                // Open the recipe builder modal
+                document.getElementById('recipeModal').classList.add('active');
+
+                // Update modal title to indicate template mode
+                const modalTitle = document.querySelector('#recipeModal h3');
+                if (modalTitle) {
+                    modalTitle.textContent = 'Create Recipe from Template';
+                }
+
+                // Populate form with template data
+                // Add "(Copy)" to name to indicate this is a new recipe
+                document.getElementById('recipeName').value = recipe.name + ' (Copy)';
+                document.getElementById('recipeCategory').value = recipe.category;
+                document.getElementById('recipeServings').value = recipe.servings;
+
+                // IMPORTANT: Deep copy ingredients to prevent mutation of original
+                currentRecipeIngredients = JSON.parse(JSON.stringify(recipe.ingredients));
+
+                // CRITICAL: Keep save buttons in CREATE mode (not update mode)
+                // This is the key difference from editRecipe()
+                const saveButton = document.querySelector('button[onclick*="updateExistingRecipe"], button[onclick="saveRecipe()"]');
+                if (saveButton) {
+                    saveButton.textContent = 'Save Recipe';
+                    saveButton.onclick = () => saveRecipe();
+                }
+
+                const saveAddButton = document.querySelector('button[onclick*="updateAndAddRecipeToLog"], button[onclick="addRecipeToLog()"]');
+                if (saveAddButton) {
+                    saveAddButton.textContent = 'Save & Add to Today\'s Log';
+                    saveAddButton.onclick = () => addRecipeToLog();
+                }
+
+                // Ensure ingredient select is populated
+                populateIngredientSelect();
+
+                // Update preview
+                updateRecipePreview();
+
+                showSuccessMessage('✅ Template loaded! Modify ingredients and save as new recipe.');
+
+            }).catch(error => {
+                console.error('❌ TEMPLATE: Failed to load ingredients:', error);
+                showErrorMessage('Failed to load recipe template: ' + error.message);
+            });
+        }
+
+        // Populate Recipe Template Dropdown
+        function populateRecipeTemplateDropdown() {
+            const templateSelect = document.getElementById('recipeTemplateSelect');
+            if (!templateSelect) return;
+
+            // Get all available recipes
+            const recipeKeys = Object.keys(customRecipes);
+
+            // Clear existing options (except the first placeholder)
+            templateSelect.innerHTML = '<option value="">-- Select a recipe to copy --</option>';
+
+            // Add recipes to dropdown
+            recipeKeys.forEach(key => {
+                const recipe = customRecipes[key];
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = recipe.name + ` (${recipe.servings} servings, ${recipe.ingredients.length} ingredients)`;
+                templateSelect.appendChild(option);
+            });
+        }
+
+        // Load Recipe Template (called when user selects from dropdown)
+        function loadRecipeTemplate() {
+            const templateSelect = document.getElementById('recipeTemplateSelect');
+            const selectedKey = templateSelect.value;
+
+            if (!selectedKey) {
+                // If no recipe selected, just clear the form
+                return;
+            }
+
+            console.log('📋 TEMPLATE: loadRecipeTemplate() called for key:', selectedKey);
+
+            // Check if the recipe exists
+            if (!customRecipes[selectedKey]) {
+                showErrorMessage('Recipe not found: ' + selectedKey);
+                return;
+            }
+
+            const recipe = customRecipes[selectedKey];
+            const requestedServings = parseFloat(document.getElementById('recipeTemplateServings').value) || 1;
+            const originalServings = recipe.servings || 1;
+            const scaleFactor = requestedServings / originalServings;
+
+            console.log('📋 TEMPLATE: Loading recipe:', recipe.name);
+            console.log('📋 TEMPLATE: Original servings:', originalServings, 'Requested:', requestedServings, 'Scale:', scaleFactor);
+
+            // Set recipe name to indicate it's based on the original
+            document.getElementById('recipeName').value = recipe.name + ' + More';
+            document.getElementById('recipeCategory').value = recipe.category;
+            // Keep servings at 1 since we're scaling ingredients to the requested amount
+            document.getElementById('recipeServings').value = 1;
+
+            // Deep copy and scale ingredients
+            const scaledIngredients = recipe.ingredients.map(ingredient => {
+                const scaledIng = JSON.parse(JSON.stringify(ingredient));
+
+                // Scale the amount string (e.g., "1.33x 1 cup uncooked")
+                if (scaledIng.amount) {
+                    // Parse the multiplier from the amount string
+                    const amountMatch = scaledIng.amount.match(/^([\d.]+)x\s+(.+)$/);
+                    if (amountMatch) {
+                        const currentMultiplier = parseFloat(amountMatch[1]);
+                        const measurement = amountMatch[2];
+                        const newMultiplier = (currentMultiplier * scaleFactor).toFixed(2);
+                        scaledIng.amount = `${newMultiplier}x ${measurement}`;
+                    }
+                }
+
+                // Scale nutrition values
+                if (scaledIng.nutrition) {
+                    Object.keys(scaledIng.nutrition).forEach(key => {
+                        scaledIng.nutrition[key] = scaledIng.nutrition[key] * scaleFactor;
+                    });
+                }
+
+                return scaledIng;
+            });
+
+            // Set the scaled ingredients
+            currentRecipeIngredients = scaledIngredients;
+
+            // Update preview
+            updateRecipePreview();
+
+            showSuccessMessage(`✅ Loaded ${requestedServings} serving(s) of ${recipe.name}! Add more ingredients if needed.`);
         }
 
         // Delete Recipe Function
@@ -7318,14 +7468,8 @@
                 }
                 
             } else if (tabName === 'manageIngredients') {
-                console.log('🥬 TAB: Manage Ingredients tab opened, initializing recipe editor access...');
-                
-                // Initialize recipe editor access functionality
-                setTimeout(() => {
-                    initializeRecipeEditorAccess();
-                }, 100); // Small delay to ensure DOM is ready
-                
-                showSuccessMessage('✅ Ingredients management ready! You can also access recipe editing from here.');
+                console.log('🥬 TAB: Manage Ingredients tab opened');
+                showSuccessMessage('✅ Ingredients management ready!');
             }
         }
 
@@ -10291,6 +10435,11 @@
                                 </div>
                             </div>
                             <div class="flex space-x-2 ml-4">
+                                <button onclick="createFromRecipe('${recipeName}')"
+                                        class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition duration-200"
+                                        title="Create a new recipe using this as a template">
+                                    📋 Copy
+                                </button>
                                 <button onclick="openRecipeEditModal('${recipeName}')"
                                         class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
                                     ✏️ Edit
@@ -10379,6 +10528,11 @@
                                 </div>
                             </div>
                             <div class="flex space-x-2 ml-4">
+                                <button onclick="createFromRecipe('${recipeName}')"
+                                        class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition duration-200"
+                                        title="Create a new recipe using this as a template">
+                                    📋 Copy
+                                </button>
                                 <button onclick="openRecipeEditModal('${recipeName}')"
                                         class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
                                     ✏️ Edit
@@ -10749,186 +10903,13 @@
         }
 
         // ========================================
-        // RECIPE EDITOR ACCESS FROM INGREDIENTS MANAGEMENT
-        // ========================================
-        
-        // Populate recipe selector dropdown
-        function populateRecipeSelector() {
-            console.log('🍳 RECIPE_SELECTOR: populateRecipeSelector() called');
-            const selector = document.getElementById('recipeSelector');
-            const editButton = document.getElementById('editSelectedRecipeBtn');
-            
-            if (!selector) {
-                console.log('⚠️ RECIPE_SELECTOR: Recipe selector element not found');
-                return;
-            }
-            
-            // Get all available recipes (both server and custom)
-            const allRecipes = {...(foodDatabase?.dishes || {}), ...customRecipes};
-            const recipeKeys = Object.keys(allRecipes);
-            
-            console.log('🍳 RECIPE_SELECTOR: Found', recipeKeys.length, 'total recipes');
-            
-            // Clear existing options
-            selector.innerHTML = '<option value="">-- Choose a recipe --</option>';
-            
-            if (recipeKeys.length === 0) {
-                selector.innerHTML += '<option value="" disabled>No recipes available</option>';
-                if (editButton) editButton.disabled = true;
-                return;
-            }
-            
-            // Sort recipes alphabetically
-            recipeKeys.sort((a, b) => {
-                const nameA = allRecipes[a].name || a;
-                const nameB = allRecipes[b].name || b;
-                return nameA.localeCompare(nameB);
-            });
-            
-            // Add recipe options
-            recipeKeys.forEach(key => {
-                const recipe = allRecipes[key];
-                const recipeName = recipe.name || key;
-                const isCustom = customRecipes[key] ? ' (Custom)' : '';
-                selector.innerHTML += `<option value="${key}">${recipeName}${isCustom}</option>`;
-            });
-            
-            console.log('✅ RECIPE_SELECTOR: Recipe selector populated with', recipeKeys.length, 'recipes');
-        }
-        
-        // Handle recipe selection change
-        function onRecipeSelectionChange() {
-            const selector = document.getElementById('recipeSelector');
-            const editButton = document.getElementById('editSelectedRecipeBtn');
-            
-            if (!selector || !editButton) return;
-            
-            const selectedRecipe = selector.value;
-            editButton.disabled = !selectedRecipe;
-            
-            if (selectedRecipe) {
-                console.log('🍳 RECIPE_SELECTOR: Recipe selected:', selectedRecipe);
-            }
-        }
-        
-        // Edit selected recipe from ingredients management
-        function editSelectedRecipeFromIngredients() {
-            console.log('📝 RECIPE_EDIT: editSelectedRecipeFromIngredients() called');
-            
-            const selector = document.getElementById('recipeSelector');
-            if (!selector) {
-                console.error('❌ RECIPE_EDIT: Recipe selector not found');
-                return;
-            }
-            
-            const selectedRecipe = selector.value;
-            if (!selectedRecipe) {
-                showErrorMessage('Please select a recipe to edit');
-                return;
-            }
-            
-            console.log('📝 RECIPE_EDIT: Opening recipe editor for:', selectedRecipe);
-            
-            // Use the existing openRecipeEditModal function with all its race condition fixes
-            openRecipeEditModal(selectedRecipe);
-        }
-        
-        // Create new recipe from ingredients management
-        function createNewRecipeFromIngredients() {
-            console.log('➕ RECIPE_CREATE: createNewRecipeFromIngredients() called');
-            
-            // Close the ingredients management modal
-            closeUnifiedAddModal();
-            
-            // Open the recipe builder
-            openRecipeBuilder();
-            
-            showSuccessMessage('✅ Recipe builder opened! Create your new recipe.');
-        }
-        
-        // Initialize recipe editor access when ingredients management opens
-        function initializeRecipeEditorAccess() {
-            console.log('🔧 RECIPE_INIT: initializeRecipeEditorAccess() called');
-            
-            // Ensure databases are loaded before populating selector
-            if (!foodDatabase || !customRecipes) {
-                console.log('🔄 RECIPE_INIT: Databases not loaded, loading now...');
-                loadDatabases().then(() => {
-                    console.log('✅ RECIPE_INIT: Databases loaded, populating selector');
-                    populateRecipeSelector();
-                }).catch(error => {
-                    console.error('❌ RECIPE_INIT: Failed to load databases:', error);
-                });
-            } else {
-                populateRecipeSelector();
-            }
-            
-            // Add event listeners
-            const selector = document.getElementById('recipeSelector');
-            const editButton = document.getElementById('editSelectedRecipeBtn');
-            const createButton = document.getElementById('createNewRecipeBtn');
-            
-            if (selector) {
-                selector.addEventListener('change', onRecipeSelectionChange);
-            }
-            
-            if (editButton) {
-                editButton.addEventListener('click', editSelectedRecipeFromIngredients);
-            }
-            
-            if (createButton) {
-                createButton.addEventListener('click', createNewRecipeFromIngredients);
-            }
-            
-            console.log('✅ RECIPE_INIT: Recipe editor access initialized');
-        }
-
-        // ========================================
         // DIAGNOSTIC EXECUTION AND INITIALIZATION
         // ========================================
         
         // Make diagnostic functions available globally for manual testing
         window.testExportButton = testExportButton;
         window.testExportFlow = testExportFlow;
-        
-        // Test functions for recipe editor integration
-        window.testRecipeEditorIntegration = function() {
-            console.log('🧪 Testing Recipe Editor Integration...');
-            
-            // Test 1: Check if recipe editor access section exists
-            const recipeEditorSection = document.getElementById('recipeEditorAccess');
-            console.log('Recipe Editor Access Section:', recipeEditorSection ? '✅ Found' : '❌ Missing');
-            
-            // Test 2: Check if recipe selector exists
-            const recipeSelector = document.getElementById('recipeSelector');
-            console.log('Recipe Selector:', recipeSelector ? '✅ Found' : '❌ Missing');
-            
-            // Test 3: Check if buttons exist
-            const editBtn = document.getElementById('editSelectedRecipeBtn');
-            const createBtn = document.getElementById('createNewRecipeBtn');
-            console.log('Edit Button:', editBtn ? '✅ Found' : '❌ Missing');
-            console.log('Create Button:', createBtn ? '✅ Found' : '❌ Missing');
-            
-            // Test 4: Check if functions are available
-            console.log('populateRecipeSelector function:', typeof populateRecipeSelector === 'function' ? '✅ Available' : '❌ Missing');
-            console.log('editSelectedRecipeFromIngredients function:', typeof editSelectedRecipeFromIngredients === 'function' ? '✅ Available' : '❌ Missing');
-            console.log('createNewRecipeFromIngredients function:', typeof createNewRecipeFromIngredients === 'function' ? '✅ Available' : '❌ Missing');
-            console.log('initializeRecipeEditorAccess function:', typeof initializeRecipeEditorAccess === 'function' ? '✅ Available' : '❌ Missing');
-            
-            // Test 5: Test recipe selector population
-            if (typeof populateRecipeSelector === 'function') {
-                try {
-                    populateRecipeSelector();
-                    const options = recipeSelector ? recipeSelector.options.length : 0;
-                    console.log('Recipe Selector Population:', options > 1 ? `✅ ${options} options loaded` : '⚠️ Only default option');
-                } catch (error) {
-                    console.log('Recipe Selector Population:', `❌ Error: ${error.message}`);
-                }
-            }
-            
-            console.log('🧪 Recipe Editor Integration Test Complete!');
-        };
-        
+
         // Test function for modal layering
         window.testModalLayering = function() {
             console.log('🧪 Testing Modal Layering...');
@@ -10965,13 +10946,7 @@
             
             console.log('Database Validation Check:', hasDbValidation ? '✅ Present' : '❌ Missing');
             console.log('Retry Mechanism:', hasRetryMechanism ? '✅ Present' : '❌ Missing');
-            
-            // Check if our new functions preserve this logic
-            const editFromIngredientsStr = editSelectedRecipeFromIngredients.toString();
-            const preservesValidation = editFromIngredientsStr.includes('openRecipeEditModal');
-            
-            console.log('Integration Preserves Race Condition Fixes:', preservesValidation ? '✅ Yes' : '❌ No');
-            
+
             console.log('🧪 Race Condition Handling Test Complete!');
         };
         
@@ -10982,7 +10957,6 @@
                 console.log('🔧 AUTO_DIAGNOSTIC: You can also manually run:');
                 console.log('🔧 AUTO_DIAGNOSTIC: - testExportButton() - Test button functionality');
                 console.log('🔧 AUTO_DIAGNOSTIC: - testExportFlow() - Test complete export flow');
-                console.log('🔧 AUTO_DIAGNOSTIC: - testRecipeEditorIntegration() - Test recipe editor integration');
                 console.log('🔧 AUTO_DIAGNOSTIC: - testModalLayering() - Test modal z-index layering');
                 console.log('🔧 AUTO_DIAGNOSTIC: - testRaceConditionHandling() - Test race condition preservation');
                 
