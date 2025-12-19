@@ -4186,6 +4186,63 @@
       "source": "database",
       "mealType": "Morning Snack",
       "date": "2025-12-18"
+    },
+    {
+      "id": 1766182032082,
+      "description": "Costco roasted mixed nuts (0.5x 1 tbsp)",
+      "timestamp": "2025-12-18T22:07:12.000Z",
+      "nutrition": {
+        "calories": 23,
+        "protein": 0.6,
+        "carbs": 0.9,
+        "fat": 2,
+        "fiber": 0.3
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Morning Snack",
+      "ingredient_data": {
+        "category": "other",
+        "key": "costco_roasted_mixed_nuts",
+        "measurement": "1_tbsp",
+        "quantity": 0.5
+      },
+      "date": "2025-12-18"
+    },
+    {
+      "id": 1766182040946,
+      "description": "Orgain vegan protein powder (0.5x 1 serving)",
+      "timestamp": "2025-12-18T22:07:20.000Z",
+      "nutrition": {
+        "calories": 80,
+        "protein": 10.5,
+        "carbs": 10,
+        "fat": 2.3,
+        "fiber": 4
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Morning Snack",
+      "ingredient_data": {
+        "category": "other",
+        "key": "orgain_vegan_protein_powder",
+        "measurement": "1_serving",
+        "quantity": 0.5
+      },
+      "date": "2025-12-18"
+    },
+    {
+      "id": 1766182049980,
+      "description": "Lunch quinoa-rice with dahi (1 serving)",
+      "timestamp": "2025-12-18T22:07:29.000Z",
+      "nutrition": {
+        "calories": 158,
+        "protein": 6.4,
+        "carbs": 26.9,
+        "fat": 2.7,
+        "fiber": 1.7
+      },
+      "source": "database",
+      "mealType": "Lunch",
+      "date": "2025-12-18"
     }
   ]
 }
