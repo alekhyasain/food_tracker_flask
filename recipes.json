@@ -2913,6 +2913,56 @@
         "fat": 5.2,
         "fiber": 5.8
       }
+    },
+    "dondakaya_sabji": {
+      "name": "Dondakaya Sabji",
+      "category": "sabji",
+      "servings": 4,
+      "ingredients": [
+        {
+          "key": "vegetables.dondakaya",
+          "name": "Dondakaya",
+          "amount": "1x 1 box",
+          "nutrition": {
+            "calories": 143,
+            "protein": 8.2,
+            "carbs": 24.5,
+            "fat": 1.4,
+            "fiber": 10.9
+          }
+        },
+        {
+          "key": "oils_fats.olive_oil",
+          "name": "Olive oil",
+          "amount": "2x 1 tsp",
+          "nutrition": {
+            "calories": 80,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 9,
+            "fiber": 0
+          }
+        },
+        {
+          "key": "spices_seasonings.pappula_podi",
+          "name": "Pappula podi",
+          "amount": "2x 1 tbsp",
+          "nutrition": {
+            "calories": 91.18,
+            "protein": 3.5,
+            "carbs": 3.56,
+            "fat": 7.56,
+            "fiber": 1.34
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 79,
+        "protein": 2.9,
+        "carbs": 7,
+        "fat": 4.5,
+        "fiber": 3.1
+      }
     }
   },
   "ingredients_database": {
