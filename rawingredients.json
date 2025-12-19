@@ -1601,6 +1601,18 @@
             "fiber": 0
           }
         }
+      },
+      "hersheys_with_almonds": {
+        "name": "Hersheys with almonds",
+        "measurements": {
+          "1_serving": {
+            "calories": 210,
+            "protein": 4,
+            "carbs": 20,
+            "fat": 14,
+            "fiber": 0
+          }
+        }
       }
     }
   }
