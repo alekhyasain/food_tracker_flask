@@ -4107,27 +4107,6 @@
       "date": "2025-12-18"
     },
     {
-      "id": 1766086439193,
-      "description": "Orgain vegan protein powder (0.5x 1 serving)",
-      "timestamp": "2025-12-18T19:33:59.000Z",
-      "nutrition": {
-        "calories": 80,
-        "protein": 10.5,
-        "carbs": 10,
-        "fat": 2.3,
-        "fiber": 4
-      },
-      "source": "enhanced_ingredient",
-      "mealType": "Morning Snack",
-      "ingredient_data": {
-        "category": "other",
-        "key": "orgain_vegan_protein_powder",
-        "measurement": "1_serving",
-        "quantity": 0.5
-      },
-      "date": "2025-12-18"
-    },
-    {
       "id": 1766086451305,
       "description": "Egg (1x 1 medium)",
       "timestamp": "2025-12-18T19:34:11.000Z",
