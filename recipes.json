@@ -3049,6 +3049,56 @@
         "fat": 11.8,
         "fiber": 2.8
       }
+    },
+    "raita": {
+      "name": "Raita",
+      "category": "other",
+      "servings": 2,
+      "ingredients": [
+        {
+          "key": "other.low_fat_dahi",
+          "name": "Low fat dahi",
+          "amount": "1x 1 cup",
+          "nutrition": {
+            "calories": 110,
+            "protein": 8,
+            "carbs": 11,
+            "fat": 4,
+            "fiber": 0
+          }
+        },
+        {
+          "key": "vegetables.tomato",
+          "name": "Tomato",
+          "amount": "0.25x 1 medium",
+          "nutrition": {
+            "calories": 5.5,
+            "protein": 0.275,
+            "carbs": 1.2,
+            "fat": 0.05,
+            "fiber": 0.35
+          }
+        },
+        {
+          "key": "vegetables.cucumber",
+          "name": "Cucumber",
+          "amount": "0.25x 1 large",
+          "nutrition": {
+            "calories": 8.5,
+            "protein": 0.4125,
+            "carbs": 1.5,
+            "fat": 0.1125,
+            "fiber": 0.49
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 62,
+        "protein": 4.3,
+        "carbs": 6.9,
+        "fat": 2.1,
+        "fiber": 0.4
+      }
     }
   },
   "ingredients_database": {
