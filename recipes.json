@@ -2963,6 +2963,92 @@
         "fat": 4.5,
         "fiber": 3.1
       }
+    },
+    "paneer_dosa": {
+      "name": "Paneer Dosa",
+      "category": "other",
+      "servings": 1,
+      "ingredients": [
+        {
+          "key": "grains.white_rice",
+          "name": "White Rice",
+          "amount": "0.04x 1 cup uncooked",
+          "nutrition": {
+            "calories": 29.208333333333332,
+            "protein": 0.5375,
+            "carbs": 6.445833333333333,
+            "fat": 0.04583333333333334,
+            "fiber": 0.16249999999999998
+          }
+        },
+        {
+          "key": "grains.boiled_white_rice",
+          "name": "Boiled white rice",
+          "amount": "0.13x 1 cup uncooked",
+          "nutrition": {
+            "calories": 87.375,
+            "protein": 1.8999999999999997,
+            "carbs": 18.8,
+            "fat": 0.23749999999999996,
+            "fiber": 0.5125
+          }
+        },
+        {
+          "key": "dals_legumes.methi_seeds",
+          "name": "Methi Seeds",
+          "amount": "0.04x 1 tbsp",
+          "nutrition": {
+            "calories": 1.5,
+            "protein": 0.125,
+            "carbs": 0.25,
+            "fat": 0.041666666666666664,
+            "fiber": 0.125
+          }
+        },
+        {
+          "key": "dals_legumes.urad_dal",
+          "name": "Urad dal",
+          "amount": "0.03x 1 cup uncooked",
+          "nutrition": {
+            "calories": 22.5,
+            "protein": 1.65,
+            "carbs": 4,
+            "fat": 0,
+            "fiber": 1.9500000000000002
+          }
+        },
+        {
+          "key": "oils_fats.olive_oil",
+          "name": "Olive oil",
+          "amount": "0.42x 1 tsp",
+          "nutrition": {
+            "calories": 16.666666666666664,
+            "protein": 0,
+            "carbs": 0,
+            "fat": 1.875,
+            "fiber": 0
+          }
+        },
+        {
+          "key": "other.low_fat_paneer_400g",
+          "name": "Low fat paneer 400g",
+          "amount": "0.125x 1 block",
+          "nutrition": {
+            "calories": 122.5,
+            "protein": 12.25,
+            "carbs": 1.75,
+            "fat": 9.625,
+            "fiber": 0
+          }
+        }
+      ],
+      "total_per_serving": {
+        "calories": 280,
+        "protein": 16.5,
+        "carbs": 31.2,
+        "fat": 11.8,
+        "fiber": 2.8
+      }
     }
   },
   "ingredients_database": {
