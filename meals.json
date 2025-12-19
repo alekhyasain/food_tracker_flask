@@ -4371,6 +4371,84 @@
       "source": "database",
       "mealType": "Breakfast",
       "date": "2025-12-19"
+    },
+    {
+      "id": 1766184124086,
+      "description": "Egg white (1x 1)",
+      "timestamp": "2025-12-19T22:42:04.000Z",
+      "nutrition": {
+        "calories": 17,
+        "protein": 3.6,
+        "carbs": 0,
+        "fat": 0,
+        "fiber": 0
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Breakfast",
+      "ingredient_data": {
+        "category": "other",
+        "key": "egg_white",
+        "measurement": "1",
+        "quantity": 1
+      },
+      "date": "2025-12-19"
+    },
+    {
+      "id": 1766184131332,
+      "description": "Egg white (1x 1)",
+      "timestamp": "2025-12-19T22:42:11.000Z",
+      "nutrition": {
+        "calories": 17,
+        "protein": 3.6,
+        "carbs": 0,
+        "fat": 0,
+        "fiber": 0
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Breakfast",
+      "ingredient_data": {
+        "category": "other",
+        "key": "egg_white",
+        "measurement": "1",
+        "quantity": 1
+      },
+      "date": "2025-12-19"
+    },
+    {
+      "id": 1766184140616,
+      "description": "Roasted Mixed nuts (1x 1 tbsp)",
+      "timestamp": "2025-12-19T22:42:20.000Z",
+      "nutrition": {
+        "calories": 55,
+        "protein": 1.5,
+        "carbs": 1,
+        "fat": 4,
+        "fiber": 0
+      },
+      "source": "enhanced_ingredient",
+      "mealType": "Morning Snack",
+      "ingredient_data": {
+        "category": "oils_fats",
+        "key": "roasted_mixed_nuts",
+        "measurement": "1_tbsp",
+        "quantity": 1
+      },
+      "date": "2025-12-19"
+    },
+    {
+      "id": 1766184155813,
+      "description": "Oat milk coffee (1 serving)",
+      "timestamp": "2025-12-19T22:42:35.000Z",
+      "nutrition": {
+        "calories": 68,
+        "protein": 1,
+        "carbs": 9.9,
+        "fat": 2.5,
+        "fiber": 0.5
+      },
+      "source": "database",
+      "mealType": "Morning Snack",
+      "date": "2025-12-19"
     }
   ]
 }
