@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><title>AI Button Test</title></head>
+<body>
+<h1>Testing AI Button</h1>
+
+<script>
+console.log('Script starting...');
+let aiPanelOpen = false;
+
+function syncAIDate() {
+    console.log('syncAIDate called');
+}
+
+function toggleAIAssistant() {
+    console.log('toggleAIAssistant called! aiPanelOpen:', aiPanelOpen);
+    const panel = document.getElementById('aiAssistantPanel');
+    console.log('Panel element:', panel);
+    aiPanelOpen = !aiPanelOpen;
+    if (panel) {
+        panel.style.display = aiPanelOpen ? 'block' : 'none';
+        console.log('Panel display set to:', panel.style.display);
+    }
+}
+console.log('Functions defined');
+</script>
+
+<button onclick="console.log('Button clicked!'); toggleAIAssistant();" 
+        style="position: fixed; bottom: 20px; right: 20px; background: purple; color: white; padding: 15px; border-radius: 50%; cursor: pointer; z-index: 100;">
+    CLICK
+</button>
+
+<div id="aiAssistantPanel" style="display: none; position: fixed; bottom: 80px; right: 20px; background: white; padding: 20px; border: 2px solid purple; z-index: 100;">
+    <h2>AI Panel</h2>
+    <p>If you see this, toggle works!</p>
+    <button onclick="toggleAIAssistant()">Close</button>
+</div>
+
+<script>
+console.log('Page loaded. Button element:', document.querySelector('button'));
+console.log('Panel element:', document.getElementById('aiAssistantPanel'));
+</script>
+</body>
+</html>

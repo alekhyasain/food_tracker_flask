@@ -116,15 +116,15 @@
                             <div class="text-sm opacity-90">Create meals, manage ingredients, or add recipes</div>
                         </div>
                     </button>
-                    <button onclick="startDirectExport()" class="unified-btn flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl" id="mainExportButton">
+                    <button onclick="syncAllToDatabase()" class="unified-btn flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-4 rounded-xl" id="syncButton">
                         <div class="text-center">
-                            <div class="text-2xl mb-1">📊</div>
-                            <div class="font-semibold text-lg">Export to Excel</div>
-                            <div class="text-sm opacity-90">Download your food diary data</div>
+                            <div class="text-2xl mb-1">🔄</div>
+                            <div class="font-semibold text-lg">Sync to Database</div>
+                            <div class="text-sm opacity-90">Push all meals to database for AI</div>
                         </div>
                     </button>
                 </div>
-                <p class="text-sm text-gray-500 text-center">Your meals are automatically saved to the server!</p>
+                <p class="text-sm text-gray-500 text-center">New meals auto-sync! Click sync for existing meals.</p>
                 
                 <!-- Export Status Display -->
                 <div id="exportStatusDisplay" class="hidden mt-4 max-w-md mx-auto">
@@ -2155,6 +2155,9 @@
 
             mealsByDate[dateKey].push(meal);
             saveMealsToStorage();
+            
+            // Auto-sync to database
+            syncMealToDatabase(meal, dateKey, 'add');
         }
 
         function removeMealFromDate(mealId) {
@@ -2166,11 +2169,40 @@
                     delete mealsByDate[dateKey];
                 }
                 saveMealsToStorage();
+                
+                // Auto-sync to database
+                syncMealToDatabase({ id: mealId }, dateKey, 'delete');
             }
         }
 
         function saveMealsToStorage() {
             localStorage.setItem('indianFoodMealsByDate', JSON.stringify(mealsByDate));
+        }
+        
+        // Auto-sync meal changes to database
+        async function syncMealToDatabase(meal, date, operation) {
+            try {
+                if (operation === 'add') {
+                    const response = await fetch('/api/meals', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ date, meal })
+                    });
+                    if (response.ok) {
+                        console.log('✅ Meal synced to database:', meal.description);
+                    }
+                } else if (operation === 'delete') {
+                    const response = await fetch(`/api/meals/${meal.id}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.ok) {
+                        console.log('✅ Meal deleted from database:', meal.id);
+                    }
+                }
+            } catch (error) {
+                console.warn('⚠️ Database sync failed (offline?):', error.message);
+                // Fail silently - data is still in localStorage
+            }
         }
 
         // ========================================
@@ -5349,6 +5381,41 @@
         }
 
         // CONSOLIDATED INITIALIZATION - Single DOMContentLoaded listener to prevent race conditions
+        // AI Assistant: robust initialization to avoid race conditions and ensure clicks are captured
+        function initAIAssistant() {
+            const btn = document.getElementById('aiAssistantBtn');
+            const panel = document.getElementById('aiAssistantPanel');
+            if (panel) {
+                panel.style.pointerEvents = 'auto';
+                // Instrumentation: capture clicks inside the panel for diagnostics
+                panel.addEventListener('click', (e) => {
+                    console.log('🧪 AI Panel Click:', { tag: e.target?.tagName, id: e.target?.id, classes: e.target?.className });
+                }, true);
+            }
+            if (btn) {
+                // Ensure click binding is reliable (supports CSP that blocks inline handlers)
+                btn.style.pointerEvents = 'auto';
+                btn.addEventListener('click', (e) => {
+                    try {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    } catch {}
+                    if (typeof window.toggleAIAssistant === 'function') {
+                        window.toggleAIAssistant();
+                    } else if (typeof toggleAIAssistant === 'function') {
+                        toggleAIAssistant();
+                    } else {
+                        console.warn('AI: toggleAIAssistant not available');
+                    }
+                });
+            }
+            // Sync AI date selector if available
+            if (typeof syncAIDate === 'function') {
+                try { syncAIDate(); } catch (e) { console.warn('AI: syncAIDate failed', e); }
+            }
+            console.log('✅ AI Assistant initialized');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 INIT: Starting consolidated app initialization...');
             console.log('🚀 INIT: Current time:', new Date().toISOString());
@@ -5364,6 +5431,9 @@
             
             // Initialize the date-based system FIRST to prevent race conditions
             initializeDateSystem();
+
+            // Initialize AI Assistant bindings and diagnostics
+            try { initAIAssistant(); } catch (e) { console.warn('AI: initAIAssistant failed', e); }
             
             // Initialize meal preview updates for servings changes
             const mealServingsInput = document.getElementById('mealServings');
@@ -10972,6 +11042,720 @@
             }, 2000); // Wait 2 seconds for full initialization
         });
         */
+    </script>
+
+    <script>
+        // Define AI Assistant toggle and helper functions BEFORE the button loads
+        let aiPanelOpen = false;
+        
+        function syncAIDate() {
+            const mainDate = document.getElementById('dateSelector');
+            const aiDate = document.getElementById('aiDateSelector');
+            if (mainDate && aiDate) {
+                aiDate.value = mainDate.value;
+            }
+        }
+        
+        function toggleAIAssistant() {
+            const panel = document.getElementById('aiAssistantPanel');
+            const badge = document.getElementById('aiNotificationBadge');
+            aiPanelOpen = !aiPanelOpen;
+            
+            if (aiPanelOpen) {
+                panel.style.display = 'block';
+                if (badge) badge.style.display = 'none';
+                syncAIDate();
+            } else {
+                panel.style.display = 'none';
+            }
+        }
+        // Ensure global access when CSP or scoping interferes
+        window.toggleAIAssistant = toggleAIAssistant;
+    </script>
+
+    <!-- AI Assistant Floating Button -->
+    <button id="aiAssistantBtn" onclick="toggleAIAssistant()" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-full p-4 shadow-2xl transition-all duration-300 hover:scale-110 z-[100]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" id="aiNotificationBadge" style="display: none;">!</span>
+    </button>
+
+    <!-- AI Assistant Chat Panel -->
+    <div id="aiAssistantPanel" class="fixed bottom-24 right-6 w-96 bg-white rounded-2xl shadow-2xl overflow-hidden z-[100]" style="display: none; max-height: 600px;">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white p-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                <h3 class="font-bold text-lg">AI Nutrition Assistant</h3>
+            </div>
+            <button onclick="toggleAIAssistant()" class="hover:bg-white/20 rounded-full p-1 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Date Selector for AI -->
+        <div class="bg-gray-50 p-3 border-b">
+            <div class="flex items-center space-x-2 mb-2">
+                <label class="text-xs font-semibold text-gray-600">Analyze Date:</label>
+                <input type="date" id="aiDateSelector" class="text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <button onclick="syncAIDate()" class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded transition-colors">
+                    Use Main Date
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-gray-50 p-3 border-b">
+            <div class="flex flex-wrap gap-2">
+                <button onclick="analyzeSelectedDate()" class="bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-1 rounded-full text-sm transition-colors">
+                    📊 Analyze Date
+                </button>
+                <button onclick="syncLocalStorageToDatabase()" class="bg-orange-100 hover:bg-orange-200 text-orange-700 px-3 py-1 rounded-full text-sm transition-colors">
+                    🔄 Sync Data
+                </button>
+                <button onclick="viewDailySummary()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-full text-sm transition-colors">
+                    📋 View All Days
+                </button>
+                <button onclick="getWeeklyProgress()" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-full text-sm transition-colors">
+                    📈 Weekly
+                </button>
+                <button onclick="getRecommendations()" class="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1 rounded-full text-sm transition-colors">
+                    💡 Tips
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div id="aiChatMessages" class="overflow-y-auto p-4 space-y-3" style="height: 320px;">
+            <!-- Welcome message -->
+            <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-3 rounded-lg">
+                <p class="text-sm text-gray-700">
+                    👋 Hi! I'm your AI nutrition assistant. I can help you analyze your meals, track your progress, and give personalized nutrition suggestions.
+                </p>
+                <p class="text-xs text-gray-500 mt-2">Select a date above and click "Analyze Date", or ask me anything below!</p>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="aiLoadingIndicator" class="px-4 py-2" style="display: none;">
+            <div class="flex items-center space-x-2 text-gray-500">
+                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-600"></div>
+                <span class="text-sm">Analyzing...</span>
+            </div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="border-t p-3">
+            <div class="flex space-x-2">
+                <input type="text" id="aiChatInput" placeholder="Ask me anything about nutrition..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" onkeypress="if(event.key==='Enter') handleAIChatInput()">
+                <button onclick="handleAIChatInput()" class="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Assistant Scripts -->
+    <script>
+        // Note: aiPanelOpen, toggleAIAssistant, and syncAIDate are already defined earlier
+
+        // Helper to retrieve meals-by-date from localStorage, preferring the standardized key
+        function getMealsByDateStorage() {
+            try {
+                const primary = localStorage.getItem('indianFoodMealsByDate');
+                if (primary) return JSON.parse(primary);
+                const legacy = localStorage.getItem('mealsByDate');
+                if (legacy) return JSON.parse(legacy);
+            } catch (e) {
+                console.warn('AI: Failed parsing mealsByDate storage', e);
+            }
+            return {};
+        }
+
+        function addAIMessage(message, type = 'assistant') {
+            const messagesContainer = document.getElementById('aiChatMessages');
+            const messageDiv = document.createElement('div');
+            
+            if (type === 'assistant') {
+                messageDiv.className = 'bg-gradient-to-r from-purple-50 to-blue-50 p-3 rounded-lg';
+                messageDiv.innerHTML = `<div class="text-sm text-gray-700">${message}</div>`;
+            } else if (type === 'user') {
+                messageDiv.className = 'bg-gray-100 p-3 rounded-lg ml-8';
+                messageDiv.innerHTML = `<div class="text-sm text-gray-700">${message}</div>`;
+            } else if (type === 'success') {
+                messageDiv.className = 'bg-green-50 p-3 rounded-lg border-l-4 border-green-500';
+                messageDiv.innerHTML = `<div class="text-sm text-green-700">${message}</div>`;
+            } else if (type === 'warning') {
+                messageDiv.className = 'bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-500';
+                messageDiv.innerHTML = `<div class="text-sm text-yellow-700">${message}</div>`;
+            } else if (type === 'info') {
+                messageDiv.className = 'bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500';
+                messageDiv.innerHTML = `<div class="text-sm text-blue-700">${message}</div>`;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showAILoading(show) {
+            document.getElementById('aiLoadingIndicator').style.display = show ? 'block' : 'none';
+        }
+
+        // Handle chat input
+        async function handleAIChatInput() {
+            const input = document.getElementById('aiChatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            if (!aiPanelOpen) {
+                toggleAIAssistant();
+            }
+            
+            // Display user message
+            addAIMessage(message, 'user');
+            input.value = '';
+            
+            // Show loading state
+            showAILoading(true);
+            
+            try {
+                // Get current date and nutrition data for context
+                const date = document.getElementById('aiDateSelector').value || getCurrentDate();
+                let nutritionData = null;
+                
+                // Try to get nutrition data from localStorage (standardized key with legacy fallback)
+                const mealsByDate = getMealsByDateStorage();
+                const todaysMeals = mealsByDate[date] || [];
+                
+                if (todaysMeals.length > 0) {
+                    nutritionData = {
+                        summary: {
+                            meal_count: todaysMeals.length,
+                            total_calories: todaysMeals.reduce((sum, m) => sum + (m.nutrition?.calories || 0), 0),
+                            total_protein: todaysMeals.reduce((sum, m) => sum + (m.nutrition?.protein || 0), 0),
+                            total_carbs: todaysMeals.reduce((sum, m) => sum + (m.nutrition?.carbs || 0), 0),
+                            total_fat: todaysMeals.reduce((sum, m) => sum + (m.nutrition?.fat || 0), 0),
+                            total_fiber: todaysMeals.reduce((sum, m) => sum + (m.nutrition?.fiber || 0), 0)
+                        }
+                    };
+                }
+                
+                // Call Gemini API
+                const response = await fetch('/api/ai/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        message, 
+                        date,
+                        nutritionData 
+                    })
+                });
+                
+                const data = await response.json();
+                showAILoading(false);
+                
+                if (data.fallback) {
+                    // Fallback to pattern matching if Gemini is unavailable
+                    handleFallbackChat(message);
+                } else {
+                    // Display Gemini's response
+                    addAIMessage(data.response, 'assistant');
+                }
+                
+            } catch (error) {
+                showAILoading(false);
+                console.error('Error in chat:', error);
+                addAIMessage('❌ Sorry, I could not process your message. Please try again.', 'warning');
+            }
+        }
+        
+        // Fallback chat handler (pattern matching) when Gemini is unavailable
+        function handleFallbackChat(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Better keyword matching with more natural patterns
+            if (lowerMessage.match(/\b(analy[sz]e|check|show|view|see|what|how).*(today|date|day|meal|nutrition|eat|ate)\b/) ||
+                lowerMessage.match(/\b(today|date).*(analy[sz]e|nutrition|summary|breakdown|data)\b/) ||
+                lowerMessage.includes('analyze') || lowerMessage.includes('today') || lowerMessage.includes('todays')) {
+                analyzeSelectedDate();
+                
+            } else if (lowerMessage.match(/\b(week|weekly|7.?day|past week|last week).*(progress|trend|summary|average|data)\b/) ||
+                       lowerMessage.match(/\b(show|view|check|see).*(week|weekly|progress|trend)\b/) ||
+                       lowerMessage.includes('weekly progress')) {
+                getWeeklyProgress();
+                
+            } else if (lowerMessage.match(/\b(tip|tips|suggest|advice|recommend|help me|what should|how to|improve|better)\b/) ||
+                       lowerMessage.includes('give me') || lowerMessage.includes('need help') || 
+                       lowerMessage.includes('guidance') || lowerMessage.includes('ideas')) {
+                getRecommendations();
+                
+            } else if (lowerMessage.match(/\b(protein|calorie|calories|carb|carbs|fat|fats|fiber|fibre|macro|macros|nutrient)\b/) &&
+                       !lowerMessage.match(/\b(tip|suggest|recommend|advice|help|how to|what to)\b/)) {
+                // Specific nutrient question - analyze the selected date
+                addAIMessage(`Let me analyze the selected date to show you the nutritional breakdown...`, 'assistant');
+                analyzeSelectedDate();
+                
+            } else if (lowerMessage.match(/\b(view|show|see).*(all|days|summary|table|history)\b/) ||
+                       lowerMessage.includes('all days') || lowerMessage.includes('view summary')) {
+                addAIMessage(`Great! Click the "View All Days" button above to see your 14-day nutrition history in a table format.`, 'info');
+                
+            } else if (lowerMessage.includes('sync') || lowerMessage.includes('database') || 
+                       lowerMessage.includes('save') || lowerMessage.includes('backup')) {
+                addAIMessage(`To sync your meals to the database, click the "Sync to Database" button (orange) at the top of the page. This will ensure all your localStorage meals are backed up to the database.`, 'info');
+                
+            } else if (lowerMessage.match(/\b(hello|hi|hey|yo|sup|greetings)\b/)) {
+                const greetings = [
+                    `Hello! 👋 I'm your nutrition assistant. How can I help you today?`,
+                    `Hi there! 😊 Ready to analyze your nutrition? Just ask!`,
+                    `Hey! 🌟 What would you like to know about your nutrition?`
+                ];
+                addAIMessage(greetings[Math.floor(Math.random() * greetings.length)], 'assistant');
+                
+            } else if (lowerMessage.match(/\b(help|what can you|capabilities|what do you)\b/)) {
+                addAIMessage(`
+                    <strong>🤖 I'm your AI Nutrition Assistant!</strong><br><br>
+                    <strong>I can help you with:</strong><br><br>
+                    📊 <strong>Daily Analysis</strong><br>
+                    • "Analyze today" or "Check my nutrition"<br>
+                    • "What did I eat today?"<br>
+                    • "Show me protein/calories/carbs"<br><br>
+                    📈 <strong>Weekly Trends</strong><br>
+                    • "Show weekly progress"<br>
+                    • "How's my week going?"<br><br>
+                    💡 <strong>Nutrition Tips</strong><br>
+                    • "Give me tips"<br>
+                    • "How can I improve?"<br>
+                    • "Nutrition advice please"<br><br>
+                    📋 <strong>View History</strong><br>
+                    • "Show all days"<br>
+                    • "View summary table"<br><br>
+                    Just ask naturally, and I'll do my best to help! 😊
+                `, 'info');
+                
+            } else if (lowerMessage.match(/\b(thank|thanks|thx|appreciate)\b/)) {
+                const responses = [
+                    `You're welcome! 😊 Happy to help!`,
+                    `Anytime! Keep up the good work! 💪`,
+                    `My pleasure! Let me know if you need anything else! 🌟`
+                ];
+                addAIMessage(responses[Math.floor(Math.random() * responses.length)], 'success');
+                
+            } else {
+                // More helpful fallback response
+                addAIMessage(`
+                    I'm not sure I understood that. Here are some things you can try:<br><br>
+                    💬 <strong>Try asking:</strong><br>
+                    • "Analyze today" - See your daily nutrition<br>
+                    • "Show weekly progress" - View 7-day trends<br>
+                    • "Give me tips" - Get nutrition advice<br>
+                    • "Help" - See all my capabilities<br><br>
+                    Or use the quick action buttons at the top! ✨
+                `, 'assistant');
+            }
+        }
+
+        function analyzeSelectedDate() {
+            const date = document.getElementById('aiDateSelector').value;
+            
+            if (!date) {
+                addAIMessage('⚠️ Please select a date first!', 'warning');
+                return;
+            }
+            
+            if (!aiPanelOpen) {
+                toggleAIAssistant();
+            }
+            
+            addAIMessage(`Analyzing meals for ${date}...`, 'user');
+            showAILoading(true);
+            
+            analyzeDate(date);
+        }
+
+        async function analyzeDate(date) {
+            
+            if (!aiPanelOpen) {
+                toggleAIAssistant();
+            }
+            
+            showAILoading(true);
+            
+            try {
+                const response = await fetch('/api/ai/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date })
+                });
+                
+                const analysis = await response.json();
+                showAILoading(false);
+                
+                // Check if there's no meal data
+                const summary = analysis.summary;
+                if (summary.meal_count === 0) {
+                    addAIMessage(`📭 <strong>No meals logged for ${date}</strong><br><br>There are no meals recorded for this date. Try selecting a different date or add some meals first!`, 'warning');
+                    return;
+                }
+                
+                // Display summary
+                let summaryHTML = `<strong>📊 Daily Summary for ${date}</strong><br><br>`;
+                summaryHTML += `🔥 Calories: ${Math.round(summary.total_calories)} kcal<br>`;
+                summaryHTML += `💪 Protein: ${Math.round(summary.total_protein)}g<br>`;
+                summaryHTML += `🌾 Carbs: ${Math.round(summary.total_carbs)}g<br>`;
+                summaryHTML += `🥑 Fat: ${Math.round(summary.total_fat)}g<br>`;
+                summaryHTML += `🌱 Fiber: ${Math.round(summary.total_fiber)}g<br>`;
+                summaryHTML += `🍽️ Meals logged: ${summary.meal_count}`;
+                
+                addAIMessage(summaryHTML, 'info');
+                
+                // Display macro breakdown
+                if (analysis.macroBreakdown) {
+                    const macro = analysis.macroBreakdown;
+                    let macroHTML = `<strong>🎯 Macro Distribution</strong><br><br>`;
+                    macroHTML += `Protein: ${macro.protein.percent}% (${macro.protein.grams}g)<br>`;
+                    macroHTML += `Carbs: ${macro.carbs.percent}% (${macro.carbs.grams}g)<br>`;
+                    macroHTML += `Fat: ${macro.fat.percent}% (${macro.fat.grams}g)`;
+                    
+                    addAIMessage(macroHTML, 'info');
+                }
+                
+                // Display insights
+                if (analysis.insights && analysis.insights.length > 0) {
+                    analysis.insights.forEach(insight => {
+                        addAIMessage(`✅ ${insight.message}`, 'success');
+                    });
+                }
+                
+                // Display suggestions
+                if (analysis.suggestions && analysis.suggestions.length > 0) {
+                    addAIMessage('<strong>💡 Suggestions for Improvement:</strong>', 'assistant');
+                    analysis.suggestions.forEach(suggestion => {
+                        const type = suggestion.type === 'warning' ? 'warning' : 'info';
+                        addAIMessage(`<strong>${suggestion.message}</strong><br><br>💡 ${suggestion.recommendation}`, type);
+                    });
+                } else {
+                    addAIMessage('🎉 Great job! Your nutrition looks well-balanced today.', 'success');
+                }
+                
+            } catch (error) {
+                showAILoading(false);
+                console.error('Error analyzing today:', error);
+                addAIMessage('❌ Sorry, I couldn\'t analyze your data. Please try again.', 'warning');
+            }
+        }
+
+        async function syncLocalStorageToDatabase() {
+            if (!aiPanelOpen) {
+                toggleAIAssistant();
+            }
+            
+            addAIMessage('Syncing localStorage data to database...', 'user');
+            showAILoading(true);
+            
+            try {
+                // Get meals from localStorage
+                const localMeals = JSON.parse(localStorage.getItem('mealsByDate') || '{}');
+                
+                if (Object.keys(localMeals).length === 0) {
+                    showAILoading(false);
+                    addAIMessage('📭 No data found in localStorage to sync.', 'info');
+                    return;
+                }
+                
+                let synced = 0;
+                let failed = 0;
+                
+                // Send each meal to the database
+                for (const [date, meals] of Object.entries(localMeals)) {
+                    for (const meal of meals) {
+                        try {
+                            const response = await fetch('/api/meals', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ date, meal })
+                            });
+                            
+                            if (response.ok) {
+                                synced++;
+                            } else {
+                                failed++;
+                            }
+                        } catch (error) {
+                            console.error(`Failed to sync meal ${meal.id}:`, error);
+                            failed++;
+                        }
+                    }
+                }
+                
+                showAILoading(false);
+                
+                if (synced > 0) {
+                    addAIMessage(`✅ Successfully synced ${synced} meal(s) to database!${failed > 0 ? ` (${failed} failed)` : ''}`, 'success');
+                    addAIMessage('💡 Now you can use AI analysis on all your data!', 'info');
+                } else {
+                    addAIMessage(`⚠️ Sync failed. ${failed} meal(s) could not be synced. Make sure the server is running.`, 'warning');
+                }
+                
+            } catch (error) {
+                showAILoading(false);
+                console.error('Sync error:', error);
+                addAIMessage('❌ Sync failed: ' + error.message, 'warning');
+            }
+        }
+
+        async function viewDailySummary() {
+            if (!aiPanelOpen) {
+                toggleAIAssistant();
+            }
+            
+            addAIMessage('Fetching your daily summaries...', 'user');
+            showAILoading(true);
+            
+            try {
+                // Get last 14 days
+                const endDate = new Date();
+                const startDate = new Date();
+                startDate.setDate(startDate.getDate() - 13);
+                
+                const response = await fetch(`/api/analytics/weekly?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`);
+                const summaries = await response.json();
+                showAILoading(false);
+                
+                if (summaries.length === 0) {
+                    addAIMessage('📭 No meal data found for the past 14 days.', 'info');
+                    return;
+                }
+                
+                // Create a table view
+                let tableHTML = '<strong>📅 Last 14 Days Summary</strong><br><br>';
+                tableHTML += '<div style="max-height: 300px; overflow-y: auto; font-size: 11px;">';
+                tableHTML += '<table style="width: 100%; border-collapse: collapse;">';
+                tableHTML += '<thead><tr style="background: #f3f4f6; position: sticky; top: 0;">';
+                tableHTML += '<th style="padding: 4px; border: 1px solid #ddd; text-align: left;">Date</th>';
+                tableHTML += '<th style="padding: 4px; border: 1px solid #ddd;">Meals</th>';
+                tableHTML += '<th style="padding: 4px; border: 1px solid #ddd;">Cals</th>';
+                tableHTML += '<th style="padding: 4px; border: 1px solid #ddd;">Pro</th>';
+                tableHTML += '<th style="padding: 4px; border: 1px solid #ddd;">Carbs</th>';
+                tableHTML += '<th style="padding: 4px; border: 1px solid #ddd;">Fat</th>';
+                tableHTML += '<th style="padding: 4px; border: 1px solid #ddd;">Fiber</th>';
+                tableHTML += '</tr></thead><tbody>';
+                
+                summaries.reverse().forEach(day => {
+                    const date = new Date(day.date + 'T00:00:00');
+                    const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    tableHTML += '<tr style="border-bottom: 1px solid #eee;">';
+                    tableHTML += `<td style="padding: 4px; border: 1px solid #ddd;"><strong>${dateStr}</strong></td>`;
+                    tableHTML += `<td style="padding: 4px; border: 1px solid #ddd; text-align: center;">${day.meal_count}</td>`;
+                    tableHTML += `<td style="padding: 4px; border: 1px solid #ddd; text-align: right;">${Math.round(day.total_calories)}</td>`;
+                    tableHTML += `<td style="padding: 4px; border: 1px solid #ddd; text-align: right;">${Math.round(day.total_protein)}g</td>`;
+                    tableHTML += `<td style="padding: 4px; border: 1px solid #ddd; text-align: right;">${Math.round(day.total_carbs)}g</td>`;
+                    tableHTML += `<td style="padding: 4px; border: 1px solid #ddd; text-align: right;">${Math.round(day.total_fat)}g</td>`;
+                    tableHTML += `<td style="padding: 4px; border: 1px solid #ddd; text-align: right;">${Math.round(day.total_fiber)}g</td>`;
+                    tableHTML += '</tr>';
+                });
+                
+                tableHTML += '</tbody></table></div>';
+                tableHTML += '<br><small style="color: #666;">💡 Click on a date in the main page to see meal details</small>';
+                
+                addAIMessage(tableHTML, 'info');
+                
+            } catch (error) {
+                showAILoading(false);
+                console.error('Error fetching daily summaries:', error);
+                addAIMessage('❌ Failed to fetch daily summaries.', 'warning');
+            }
+        }
+
+        async function getWeeklyProgress() {
+            if (!aiPanelOpen) {
+                toggleAIAssistant();
+            }
+            
+            addAIMessage('Analyzing your weekly progress...', 'user');
+            showAILoading(true);
+            
+            try {
+                const response = await fetch('/api/ai/weekly-progress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const progress = await response.json();
+                showAILoading(false);
+                
+                if (!progress.hasData) {
+                    addAIMessage('📭 No data available for the past week. Start logging your meals to see weekly trends!', 'info');
+                    return;
+                }
+                
+                // Display averages
+                let avgHTML = `<strong>📈 7-Day Average</strong><br><br>`;
+                avgHTML += `🔥 Calories: ${progress.averages.calories} kcal/day<br>`;
+                avgHTML += `💪 Protein: ${progress.averages.protein}g/day<br>`;
+                avgHTML += `🌾 Carbs: ${progress.averages.carbs}g/day<br>`;
+                avgHTML += `🥑 Fat: ${progress.averages.fat}g/day<br>`;
+                avgHTML += `🌱 Fiber: ${progress.averages.fiber}g/day`;
+                
+                addAIMessage(avgHTML, 'info');
+                
+                // Display suggestions
+                if (progress.suggestions && progress.suggestions.length > 0) {
+                    progress.suggestions.forEach(suggestion => {
+                        const type = suggestion.type === 'warning' ? 'warning' : 'info';
+                        addAIMessage(`<strong>${suggestion.message}</strong><br><br>${suggestion.recommendation}`, type);
+                    });
+                } else {
+                    addAIMessage('✨ Excellent! You\'re maintaining consistent nutrition habits.', 'success');
+                }
+                
+            } catch (error) {
+                showAILoading(false);
+                console.error('Error getting weekly progress:', error);
+                addAIMessage('❌ Sorry, I couldn\'t retrieve your weekly progress. Please try again.', 'warning');
+            }
+        }
+
+        async function getRecommendations() {
+            if (!aiPanelOpen) {
+                toggleAIAssistant();
+            }
+            
+            addAIMessage('Getting nutrition tips...', 'user');
+            
+            const tips = [
+                '<strong>🥗 Eat the Rainbow</strong><br>Include a variety of colorful vegetables and fruits in your meals. Different colors provide different nutrients!',
+                '<strong>💧 Stay Hydrated</strong><br>Drink at least 8 glasses of water daily. Proper hydration supports digestion and nutrient absorption.',
+                '<strong>🥜 Protein Power</strong><br>Include protein in every meal. It helps with satiety, muscle maintenance, and stable blood sugar levels.',
+                '<strong>🌾 Choose Whole Grains</strong><br>Opt for whole grains like brown rice, quinoa, and whole wheat over refined grains for better fiber and nutrients.',
+                '<strong>⏰ Consistent Timing</strong><br>Try to eat meals at regular times. This helps regulate your metabolism and energy levels.',
+                '<strong>🍽️ Portion Awareness</strong><br>Use smaller plates and bowls to naturally control portion sizes without feeling deprived.',
+                '<strong>🥗 Fiber First</strong><br>Start meals with vegetables or salads. Fiber helps with digestion and keeps you feeling full longer.',
+                '<strong>🌰 Healthy Fats</strong><br>Include sources of healthy fats like nuts, seeds, avocado, and olive oil for better nutrient absorption.'
+            ];
+            
+            // Select 3 random tips
+            const selectedTips = [];
+            const tipIndices = new Set();
+            while (tipIndices.size < 3) {
+                tipIndices.add(Math.floor(Math.random() * tips.length));
+            }
+            
+            tipIndices.forEach(index => {
+                addAIMessage(tips[index], 'info');
+            });
+        }
+
+        // Show notification badge for new insights
+        function showAINotification() {
+            const badge = document.getElementById('aiNotificationBadge');
+            if (!aiPanelOpen) {
+                badge.style.display = 'flex';
+            }
+        }
+        
+        // Sync all localStorage meals to database
+        async function syncAllToDatabase() {
+            const button = document.getElementById('syncButton');
+            const originalHTML = button.innerHTML;
+            
+            button.innerHTML = '<div class="text-center"><div class="text-2xl mb-1">⏳</div><div class="font-semibold text-lg">Syncing...</div></div>';
+            button.disabled = true;
+            
+            try {
+                let syncedCount = 0;
+                let totalMeals = 0;
+                
+                // Count total meals
+                for (const date in mealsByDate) {
+                    totalMeals += mealsByDate[date].length;
+                }
+                
+                // Sync all meals
+                for (const date in mealsByDate) {
+                    for (const meal of mealsByDate[date]) {
+                        try {
+                            const response = await fetch('/api/meals', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ date, meal })
+                            });
+                            
+                            if (response.ok) {
+                                syncedCount++;
+                            }
+                        } catch (error) {
+                            console.warn('Failed to sync meal:', meal.id);
+                        }
+                    }
+                }
+                
+                button.innerHTML = `<div class="text-center"><div class="text-2xl mb-1">✅</div><div class="font-semibold text-lg">Synced ${syncedCount}/${totalMeals}</div></div>`;
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }, 3000);
+                
+                console.log(`✅ Synced ${syncedCount} meals to database`);
+                
+                // Show notification in AI assistant
+                if (syncedCount > 0) {
+                    showAINotification();
+                }
+                
+            } catch (error) {
+                console.error('Sync failed:', error);
+                button.innerHTML = `<div class="text-center"><div class="text-2xl mb-1">❌</div><div class="font-semibold text-lg">Sync Failed</div></div>`;
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }, 3000);
+            }
+        }
+
+        // Auto-analyze when a new meal is added
+        const originalAddMealToDate = window.addMealToDate;
+        if (typeof originalAddMealToDate === 'function') {
+            window.addMealToDate = function(...args) {
+                const result = originalAddMealToDate.apply(this, args);
+                // Show notification after meal is added
+                setTimeout(() => {
+                    showAINotification();
+                }, 1000);
+                return result;
+            };
+        }
+        
+        // Initialize AI assistant button - no DOMContentLoaded needed as button is already in DOM
+        (function() {
+            console.log('🔍 AI Assistant initialization starting...');
+            const aiBtn = document.getElementById('aiAssistantBtn');
+            console.log('🔍 Button element:', aiBtn);
+            console.log('🔍 toggleAIAssistant function exists:', typeof toggleAIAssistant);
+            
+            if (aiBtn) {
+                aiBtn.addEventListener('click', function(e) {
+                    console.log('🔍 Button clicked!', e);
+                    toggleAIAssistant();
+                });
+                console.log('✅ AI Assistant button initialized');
+                
+                // Test if it's actually clickable
+                console.log('🔍 Button styles:', window.getComputedStyle(aiBtn).display);
+                console.log('🔍 Button position:', aiBtn.getBoundingClientRect());
+            } else {
+                console.error('❌ AI Assistant button not found');
+            }
+        })();
     </script>
 
 </body>

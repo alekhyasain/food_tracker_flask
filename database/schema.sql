@@ -1,0 +1,155 @@
+-- Food Tracker Database Schema
+
+-- Categories table for ingredient categorization
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Ingredients table
+CREATE TABLE IF NOT EXISTS ingredients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_id INTEGER NOT NULL,
+    key TEXT NOT NULL,
+    name TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+    UNIQUE(category_id, key)
+);
+
+-- Ingredient measurements table
+CREATE TABLE IF NOT EXISTS ingredient_measurements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ingredient_id INTEGER NOT NULL,
+    measurement_key TEXT NOT NULL,
+    calories REAL DEFAULT 0,
+    protein REAL DEFAULT 0,
+    carbs REAL DEFAULT 0,
+    fat REAL DEFAULT 0,
+    fiber REAL DEFAULT 0,
+    FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE,
+    UNIQUE(ingredient_id, measurement_key)
+);
+
+-- Recipes table
+CREATE TABLE IF NOT EXISTS recipes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    key TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    category TEXT,
+    servings INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Recipe nutrition table (total per serving)
+CREATE TABLE IF NOT EXISTS recipe_nutrition (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    recipe_id INTEGER NOT NULL UNIQUE,
+    calories REAL DEFAULT 0,
+    protein REAL DEFAULT 0,
+    carbs REAL DEFAULT 0,
+    fat REAL DEFAULT 0,
+    fiber REAL DEFAULT 0,
+    FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+);
+
+-- Recipe ingredients table
+CREATE TABLE IF NOT EXISTS recipe_ingredients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    recipe_id INTEGER NOT NULL,
+    ingredient_key TEXT NOT NULL,
+    ingredient_name TEXT NOT NULL,
+    amount TEXT NOT NULL,
+    calories REAL DEFAULT 0,
+    protein REAL DEFAULT 0,
+    carbs REAL DEFAULT 0,
+    fat REAL DEFAULT 0,
+    fiber REAL DEFAULT 0,
+    FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+);
+
+-- Meals table (food diary entries)
+CREATE TABLE IF NOT EXISTS meals (
+    id INTEGER PRIMARY KEY,
+    description TEXT NOT NULL,
+    meal_type TEXT NOT NULL,
+    date TEXT NOT NULL,
+    timestamp TEXT NOT NULL,
+    source TEXT,
+    calories REAL DEFAULT 0,
+    protein REAL DEFAULT 0,
+    carbs REAL DEFAULT 0,
+    fat REAL DEFAULT 0,
+    fiber REAL DEFAULT 0,
+    ingredient_data TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Daily summary table for quick analytics
+CREATE TABLE IF NOT EXISTS daily_summary (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL UNIQUE,
+    total_calories REAL DEFAULT 0,
+    total_protein REAL DEFAULT 0,
+    total_carbs REAL DEFAULT 0,
+    total_fat REAL DEFAULT 0,
+    total_fiber REAL DEFAULT 0,
+    meal_count INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for better query performance
+CREATE INDEX IF NOT EXISTS idx_ingredients_category ON ingredients(category_id);
+CREATE INDEX IF NOT EXISTS idx_meals_date ON meals(date);
+CREATE INDEX IF NOT EXISTS idx_meals_meal_type ON meals(meal_type);
+CREATE INDEX IF NOT EXISTS idx_daily_summary_date ON daily_summary(date);
+CREATE INDEX IF NOT EXISTS idx_recipe_ingredients_recipe ON recipe_ingredients(recipe_id);
+
+-- Triggers to update daily summary
+CREATE TRIGGER IF NOT EXISTS update_daily_summary_on_insert
+AFTER INSERT ON meals
+BEGIN
+    INSERT INTO daily_summary (date, total_calories, total_protein, total_carbs, total_fat, total_fiber, meal_count)
+    VALUES (NEW.date, NEW.calories, NEW.protein, NEW.carbs, NEW.fat, NEW.fiber, 1)
+    ON CONFLICT(date) DO UPDATE SET
+        total_calories = total_calories + NEW.calories,
+        total_protein = total_protein + NEW.protein,
+        total_carbs = total_carbs + NEW.carbs,
+        total_fat = total_fat + NEW.fat,
+        total_fiber = total_fiber + NEW.fiber,
+        meal_count = meal_count + 1,
+        updated_at = CURRENT_TIMESTAMP;
+END;
+
+CREATE TRIGGER IF NOT EXISTS update_daily_summary_on_delete
+AFTER DELETE ON meals
+BEGIN
+    UPDATE daily_summary 
+    SET total_calories = total_calories - OLD.calories,
+        total_protein = total_protein - OLD.protein,
+        total_carbs = total_carbs - OLD.carbs,
+        total_fat = total_fat - OLD.fat,
+        total_fiber = total_fiber - OLD.fiber,
+        meal_count = meal_count - 1,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE date = OLD.date;
+    
+    DELETE FROM daily_summary WHERE date = OLD.date AND meal_count = 0;
+END;
+
+CREATE TRIGGER IF NOT EXISTS update_daily_summary_on_update
+AFTER UPDATE ON meals
+BEGIN
+    UPDATE daily_summary 
+    SET total_calories = total_calories - OLD.calories + NEW.calories,
+        total_protein = total_protein - OLD.protein + NEW.protein,
+        total_carbs = total_carbs - OLD.carbs + NEW.carbs,
+        total_fat = total_fat - OLD.fat + NEW.fat,
+        total_fiber = total_fiber - OLD.fiber + NEW.fiber,
+        updated_at = CURRENT_TIMESTAMP
+    WHERE date = OLD.date;
+END;

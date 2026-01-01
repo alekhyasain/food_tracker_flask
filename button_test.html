@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-8">
+    <h1 class="text-2xl mb-4">Button Click Test</h1>
+    
+    <script>
+        // Define function BEFORE the button
+        function testClick() {
+            alert('Button clicked successfully!');
+            document.getElementById('result').textContent = 'Button works! ✅';
+        }
+    </script>
+    
+    <div class="fixed bottom-24 right-6 w-96 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 p-4" style="display: block;">
+        <h2 class="font-bold mb-2">Test Panel</h2>
+        <button onclick="testClick()" class="bg-purple-600 text-white px-4 py-2 rounded">
+            Click Me
+        </button>
+        <div id="result" class="mt-2 text-green-600"></div>
+    </div>
+</body>
+</html>
