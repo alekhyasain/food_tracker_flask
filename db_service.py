@@ -18,7 +18,7 @@ class DatabaseService:
         self.conn = None
     
     def connect(self):
-        """Initialize database connection"""
+        """Initialize database connection and create tables if needed"""
         try:
             # Create database directory if it doesn't exist
             db_dir = os.path.dirname(self.db_path)
@@ -29,9 +29,137 @@ class DatabaseService:
             self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
             self.conn.row_factory = sqlite3.Row
             print(f'Connected to SQLite database at {self.db_path}')
+            
+            # Create tables from schema if they don't exist
+            self._create_tables()
         except Exception as e:
             print(f'Error connecting to database: {e}')
             raise
+    
+    def _create_tables(self):
+        """Create database tables from schema.sql"""
+        try:
+            schema_path = os.path.join(os.path.dirname(__file__), 'database', 'schema.sql')
+            
+            # Try alternate locations for schema.sql
+            if not os.path.exists(schema_path):
+                schema_path = './database/schema.sql'
+            if not os.path.exists(schema_path):
+                schema_path = 'database/schema.sql'
+            
+            if os.path.exists(schema_path):
+                with open(schema_path, 'r') as f:
+                    schema = f.read()
+                self.conn.executescript(schema)
+                self.conn.commit()
+                print(f'✅ Database tables created/verified from {schema_path}')
+            else:
+                print(f'⚠️  Warning: schema.sql not found at {schema_path}')
+                print('    Creating tables with inline schema...')
+                self._create_tables_inline()
+        except Exception as e:
+            print(f'Error creating tables: {e}')
+            raise
+    
+    def _create_tables_inline(self):
+        """Create tables with inline SQL (fallback if schema.sql not found)"""
+        schema = """
+        CREATE TABLE IF NOT EXISTS categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        CREATE TABLE IF NOT EXISTS ingredients (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            category_id INTEGER NOT NULL,
+            key TEXT NOT NULL,
+            name TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+            UNIQUE(category_id, key)
+        );
+        
+        CREATE TABLE IF NOT EXISTS ingredient_measurements (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ingredient_id INTEGER NOT NULL,
+            measurement_key TEXT NOT NULL,
+            calories REAL DEFAULT 0,
+            protein REAL DEFAULT 0,
+            carbs REAL DEFAULT 0,
+            fat REAL DEFAULT 0,
+            fiber REAL DEFAULT 0,
+            FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE,
+            UNIQUE(ingredient_id, measurement_key)
+        );
+        
+        CREATE TABLE IF NOT EXISTS recipes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            key TEXT NOT NULL UNIQUE,
+            name TEXT NOT NULL,
+            category TEXT,
+            servings INTEGER DEFAULT 1,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        CREATE TABLE IF NOT EXISTS recipe_nutrition (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            recipe_id INTEGER NOT NULL UNIQUE,
+            calories REAL DEFAULT 0,
+            protein REAL DEFAULT 0,
+            carbs REAL DEFAULT 0,
+            fat REAL DEFAULT 0,
+            fiber REAL DEFAULT 0,
+            FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+        );
+        
+        CREATE TABLE IF NOT EXISTS recipe_ingredients (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            recipe_id INTEGER NOT NULL,
+            ingredient_key TEXT NOT NULL,
+            ingredient_name TEXT NOT NULL,
+            amount TEXT NOT NULL,
+            calories REAL DEFAULT 0,
+            protein REAL DEFAULT 0,
+            carbs REAL DEFAULT 0,
+            fat REAL DEFAULT 0,
+            fiber REAL DEFAULT 0,
+            FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+        );
+        
+        CREATE TABLE IF NOT EXISTS meals (
+            id INTEGER PRIMARY KEY,
+            description TEXT NOT NULL,
+            meal_type TEXT NOT NULL,
+            date TEXT NOT NULL,
+            timestamp TEXT NOT NULL,
+            source TEXT,
+            calories REAL DEFAULT 0,
+            protein REAL DEFAULT 0,
+            carbs REAL DEFAULT 0,
+            fat REAL DEFAULT 0,
+            fiber REAL DEFAULT 0,
+            ingredient_data TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        CREATE TABLE IF NOT EXISTS daily_summary (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL UNIQUE,
+            total_calories REAL DEFAULT 0,
+            total_protein REAL DEFAULT 0,
+            total_carbs REAL DEFAULT 0,
+            total_fat REAL DEFAULT 0,
+            total_fiber REAL DEFAULT 0,
+            meal_count INTEGER DEFAULT 0,
+            last_updated DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        """
+        self.conn.executescript(schema)
+        self.conn.commit()
+        print('✅ Database tables created with inline schema')
     
     def execute(self, sql: str, params: tuple = ()) -> sqlite3.Cursor:
         """Execute a SQL statement and return cursor"""
