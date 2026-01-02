@@ -54,7 +54,8 @@ def initialize_database():
         print('✅ Database service initialized')
     except Exception as error:
         print(f'❌ Failed to initialize database: {error}')
-        exit(1)
+        db_connected = False
+        raise
 
 
 def require_db():
@@ -737,8 +738,12 @@ def handle_error(error):
 
 # ============= SERVER STARTUP =============
 
-# Initialize database on startup
-initialize_database()
+# Initialize database on startup (but don't exit on failure in production)
+try:
+    initialize_database()
+except Exception as e:
+    print(f'⚠️  Database initialization error: {e}')
+    print('Server will start but database features may not work')
 
 if __name__ == '__main__':
     # For local development only
