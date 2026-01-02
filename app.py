@@ -65,16 +65,28 @@ def require_db():
     return None
 
 
-# ============= STATIC FILES =============
+# ============= API ROOT =============
 
 @app.route('/')
 def index():
-    """Serve the main HTML file"""
-    return send_from_directory('.', 'food_tracker.html')
+    """API information endpoint"""
+    return jsonify({
+        'name': 'Food Tracker API',
+        'version': '1.0.0',
+        'endpoints': {
+            'health': '/api/health',
+            'ingredients': '/api/ingredients',
+            'recipes': '/api/recipes',
+            'meals': '/api/meals',
+            'analytics': '/api/analytics',
+            'ai': '/api/ai'
+        },
+        'status': 'running'
+    })
 
 @app.route('/<path:filename>')
 def serve_static(filename):
-    """Serve static files"""
+    """Serve static files (if any exist)"""
     return send_from_directory('.', filename)
 
 
