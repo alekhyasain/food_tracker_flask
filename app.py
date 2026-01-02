@@ -65,10 +65,15 @@ def require_db():
     return None
 
 
-# ============= API ROOT =============
+# ============= STATIC FILES & WEB INTERFACE =============
 
 @app.route('/')
 def index():
+    """Serve the main HTML file"""
+    return send_from_directory('.', 'food_tracker.html')
+
+@app.route('/api')
+def api_info():
     """API information endpoint"""
     return jsonify({
         'name': 'Food Tracker API',
