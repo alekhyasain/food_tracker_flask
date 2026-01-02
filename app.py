@@ -10,6 +10,10 @@ from datetime import datetime
 import google.generativeai as genai
 from db_service import DatabaseService
 from ai_assistant import AIAssistantService
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
