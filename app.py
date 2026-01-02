@@ -84,10 +84,18 @@ def index():
         'status': 'running'
     })
 
+@app.route('/favicon.ico')
+def favicon():
+    """Return 204 for favicon requests"""
+    return '', 204
+
 @app.route('/<path:filename>')
 def serve_static(filename):
     """Serve static files (if any exist)"""
-    return send_from_directory('.', filename)
+    try:
+        return send_from_directory('.', filename)
+    except:
+        return jsonify({'error': 'File not found'}), 404
 
 
 # ============= INGREDIENTS API =============
