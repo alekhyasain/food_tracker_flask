@@ -5540,7 +5540,7 @@
                 // Check if we're running from file:// protocol
                 if (window.location.protocol === 'file:') {
                     console.log('⚠️ Running from file system - server features disabled');
-                    console.log('💡 To enable ingredient management, access via: http://localhost:3000');
+                    console.log('💡 Ingredient management is available when connected to Flask API');
                     serverMode = false;
                     showServerModeWarning();
                     return;
@@ -5559,7 +5559,7 @@
             } catch (error) {
                 serverMode = false;
                 console.log('⚠️ Server not available - ingredient management disabled');
-                console.log('💡 Make sure server is running with "npm start" and access via: http://localhost:3000');
+                console.log('💡 Make sure Flask server is running and accessible');
                 showServerModeWarning();
             }
         }
@@ -5580,12 +5580,12 @@
                         </svg>
                     </div>
                     <div class="ml-3 flex-1">
-                        <h3 class="text-sm font-medium text-yellow-800">Server Mode Required</h3>
+                        <h3 class="text-sm font-medium text-yellow-800">Server Connection Issue</h3>
                         <div class="mt-2 text-sm text-yellow-700">
-                            <p>Ingredient management features are disabled. To enable them:</p>
+                            <p>Cannot connect to the Flask API server. Please check:</p>
                             <ol class="list-decimal list-inside mt-2 space-y-1">
-                                <li>Make sure the server is running with <code class="bg-yellow-200 px-1 rounded">npm start</code></li>
-                                <li>Access the app via <a href="http://localhost:3000" class="underline font-semibold">http://localhost:3000</a></li>
+                                <li>Server is running and accessible</li>
+                                <li>Network connection is stable</li>
                             </ol>
                         </div>
                         <div class="mt-3">
@@ -5630,9 +5630,9 @@
             if (!serverMode) {
                 // Show a more helpful message based on the current context
                 if (window.location.protocol === 'file:') {
-                    showErrorMessage('Please access the app via http://localhost:3000 to use ingredient management features.');
+                    showErrorMessage('Please ensure you are connected to the Flask API server to use ingredient management features.');
                 } else {
-                    showErrorMessage('Server connection required. Make sure the server is running with "npm start".');
+                    showErrorMessage('Server connection required. Make sure the Flask API server is accessible.');
                 }
                 // Also show the server mode warning if it's not already visible
                 showServerModeWarning();
@@ -8883,7 +8883,7 @@
                     message = 'Unable to connect to the server to load meal data.';
                     suggestions = [
                         'Check your internet connection',
-                        'Make sure the server is running (npm start)',
+                        'Make sure the Flask API server is running',
                         'Try refreshing the page',
                         'Wait a moment and try again'
                     ];
