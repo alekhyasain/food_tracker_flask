@@ -737,8 +737,11 @@ def handle_error(error):
 
 # ============= SERVER STARTUP =============
 
+# Initialize database on startup
+initialize_database()
+
 if __name__ == '__main__':
-    initialize_database()
+    # For local development only
     port = int(os.getenv('PORT', 3000))
     
     print(f'\n🚀 Food Tracker Server running on http://localhost:{port}')
