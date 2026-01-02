@@ -84,10 +84,21 @@ def api_info():
             'recipes': '/api/recipes',
             'meals': '/api/meals',
             'analytics': '/api/analytics',
-            'ai': '/api/ai'
+            'ai': '/api/ai',
+            'download_db': '/api/download-db'
         },
         'status': 'running'
     })
+
+@app.route('/api/download-db')
+def download_database():
+    """Download the database file"""
+    try:
+        return send_from_directory('./database', 'food_tracker.db', 
+                                   as_attachment=True,
+                                   download_name=f'food_tracker_{datetime.now().strftime("%Y%m%d")}.db')
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/favicon.ico')
 def favicon():
